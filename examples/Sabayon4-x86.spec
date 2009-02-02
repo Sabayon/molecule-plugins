@@ -19,6 +19,7 @@
 # source_chroot: /var/tmp/catalyst/tmp/stage1-amd64-2006.0
 
 # Destination chroot directory, where files are pushed to before creating the squashfs image
+# NOTE: data will be stored inside an auto-generated subdir
 # destination_chroot: /var/tmp/catalyst/tmp/stage1-amd64-2006.0/default/livecd-stage2-amd64-2006.0
 
 # Merge directory with destination chroot
