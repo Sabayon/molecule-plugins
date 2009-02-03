@@ -35,6 +35,7 @@
 # inner_chroot_script: /path/to/script/to/be/executed/inside
 
 # Destination LiveCD root directory, where files are placed before getting mkisofs'ed
+# NOTE: data will be stored inside an auto-generated subdir
 # destination_livecd_root: /path/to/dest/livecd
 
 # Merge directory with destination LiveCD root
@@ -46,6 +47,9 @@
 # Extra mkisofs parameters, perhaps something to include/use your bootloader
 # extra_mkisofs_parameters:
 
+# Pre-ISO building script. Hook to be able to copy kernel images in place, for example
+# pre_iso_script: 
+
 # Destination directory for the ISO image path
 # destination_iso_directory:
 
@@ -53,8 +57,7 @@
 # destination_iso_image_name:
 
 # Directories to remove completely (comma separated)
-# paths_to_remove:  /path/to/abc, /path/to/xyz,
+# paths_to_remove: /path/to/a, /path/to/b
 
 # Directories to empty (comma separated)
-# paths_to_empty:  /path/to/abc, /path/to/xyz,
-
+# paths_to_empty: /path/to/a, /path/to/b
