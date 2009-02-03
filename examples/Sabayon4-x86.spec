@@ -25,6 +25,9 @@
 # Merge directory with destination chroot
 # merge_destination_chroot: /path/to/your/chroot/overlay
 
+# Extra mirror (r)sync parameters
+# extra_rsync_parameters:
+
 # Outer chroot script command, to be executed outside destination chroot before packing it
 # outer_chroot_script: /path/to/script/to/be/executed/outside
 
@@ -50,8 +53,8 @@
 # destination_iso_image_name:
 
 # Directories to remove completely (comma separated)
-# directories_to_remove:  /path/to/abc, /path/to/xyz,
+# paths_to_remove:  /path/to/abc, /path/to/xyz,
 
 # Directories to empty (comma separated)
-# directories_to_empty:  /path/to/abc, /path/to/xyz,
+# paths_to_empty:  /path/to/abc, /path/to/xyz,
 
