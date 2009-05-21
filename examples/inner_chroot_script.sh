@@ -4,14 +4,13 @@
 source /etc/profile
 
 # allow root logins to the livecd by default
-
 # turn bashlogin shells to actual login shells
 sed -i 's:exec -l /bin/bash:exec -l /bin/bash -l:' /bin/bashlogin
 
 # setup sudoers
 [ -e /etc/sudoers ] && sed -i '/NOPASSWD: ALL/ s/^# //' /etc/sudoers
 
-# setup opengl in /etc (if configured)
+# setup opengl
 eselect opengl set xorg-x11
 
 # touch /etc/asound.state
@@ -52,16 +51,7 @@ echo -5 | etc-update
 /lib/rc/bin/rc-depend -u
 
 echo "Vacuum cleaning client db"
-# Vacuum Entropy client database
-python -c "
-from entropy import EquoInterface
-equo = EquoInterface()
-equo.clientDbconn.dropAllIndexes()
-equo.clientDbconn.vacuum()
-equo.clientDbconn.commitChanges()
-equo.destroy()
-raise SystemExit(0)
-"
+equo database vacuum
 
 # Generate openrc cache
 /etc/init.d/savecache start
