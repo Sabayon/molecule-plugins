@@ -36,7 +36,7 @@ ACCEPT_LICENSE="NVIDIA" equo install --fetch --nodeps =x11-drivers/nvidia-driver
 ACCEPT_LICENSE="NVIDIA" equo install --fetch --nodeps =x11-drivers/nvidia-drivers-96*
 # dropped since no X 1.5 support yet
 # ACCEPT_LICENSE="NVIDIA" equo install --fetch --nodeps ~x11-drivers/nvidia-drivers-71.86.07
-mv /var/lib/entropy/packages/${mydir}/4/x11-drivers\:nvidia-drivers*.tbz2 /install-data/drivers/
+mv /var/lib/entropy/packages/${mydir}/*/x11-drivers\:nvidia-drivers*.tbz2 /install-data/drivers/
 
 # Add fusion icon to desktop
 if [ -f "/usr/share/applications/fusion-icon.desktop" ]; then
@@ -68,9 +68,30 @@ emaint --fix world
 
 # remove anaconda .git
 rm /opt/anaconda/.git -rf
+rm /opt/anaconda/usr/share/anaconda/po/*.po -rf
+
 
 # copy Portage config from sabayonlinux.org entropy repo to system
 cp /var/lib/entropy/client/database/*/sabayonlinux.org/standard/*/*/package.mask /etc/portage/package.mask
 cp /var/lib/entropy/client/database/*/sabayonlinux.org/standard/*/*/package.unmask /etc/portage/package.unmask
 cp /var/lib/entropy/client/database/*/sabayonlinux.org/standard/*/*/package.use /etc/portage/package.use
 cp /var/lib/entropy/client/database/*/sabayonlinux.org/standard/*/*/make.conf /etc/make.conf
+
+# Update sabayon overlay
+layman -s sabayon
+
+# Optimize sabayon overlay
+cd /usr/local/portage/layman/sabayon && git gc --aggressive \
+	&& git repack -a -d -f --depth=250 --window=250 \
+	&& git repack -ad && git prune
+
+# if Sabayon GNOME, drop qt-gui bins
+gnome_panel=$(qlist -ICve gnome-base/gnome-panel)
+if [ -n "${gnome_panel}" ]; then
+	find /usr/share/applications -name "*qt-gui*.desktop" | xargs rm
+fi
+# we don't want this on our ISO
+rm -f /usr/share/applications/sandbox.desktop
+
+# Remove wicd from autostart
+rm -f /usr/share/autostart/wicd-tray.desktop /etc/xdg/autostart/wicd-tray.desktop

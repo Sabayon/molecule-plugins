@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import os, shutil
 source_chroot_dir = os.getenv('SOURCE_CHROOT_DIR')
 chroot_dir = os.getenv('CHROOT_DIR')
