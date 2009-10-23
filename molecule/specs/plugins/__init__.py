@@ -15,3 +15,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+from molecule.specs.plugins.builtin import LivecdSpec
+from molecule.specs.plugins.remaster import RemasterSpec
+
+# FIXME: this will need to be pluggable (and plugin factory is required)
+SPEC_PLUGS = dict((x.execution_strategy(), x,) for x in \
+    (LivecdSpec, RemasterSpec))
