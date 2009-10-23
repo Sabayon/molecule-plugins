@@ -1,5 +1,9 @@
 # Molecule example .spec file
 
+# Define an alternative execution strategy, in this case, the value must be
+# "livecd"
+# execution_strategy: livecd
+
 # pre chroot command, example, for 32bit chroots on 64bit system, you always have to append "linux32"
 # prechroot: linux32
 

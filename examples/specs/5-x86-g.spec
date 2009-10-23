@@ -1,6 +1,10 @@
 # Sabayon Linux 4 x86 Molecule spec file
 # squashfs, mkisofs needed
 
+# Define an alternative execution strategy, in this case, the value must be
+# "livecd"
+# execution_strategy: livecd
+
 # pre chroot command, example, for 32bit chroots on 64bit system, you always have to append "linux32"
 # this is useful for inner_chroot_script
 prechroot: linux32
