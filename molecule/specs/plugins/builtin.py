@@ -55,7 +55,7 @@ class MirrorHandler(GenericExecutionStep):
         )
         return 0
 
-    def kill(self):
+    def kill(self, success = True):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("executing kill"),
@@ -154,7 +154,7 @@ class ChrootHandler(GenericExecutionStep):
 
         return 0
 
-    def kill(self):
+    def kill(self, success = True):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("ChrootHandler"),
                 darkred(self.spec_name),_("executing kill"),
@@ -294,7 +294,7 @@ class CdrootHandler(GenericExecutionStep):
         if os.path.isdir(self.dest_root):
             molecule.utils.empty_dir(self.dest_root)
         if not os.path.isdir(self.dest_root):
-            os.makedirs(self.dest_root,0755)
+            os.makedirs(self.dest_root, 0755)
 
         return 0
 
@@ -306,7 +306,7 @@ class CdrootHandler(GenericExecutionStep):
         )
         return 0
 
-    def kill(self):
+    def kill(self, success = True):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("executing kill"),
@@ -419,6 +419,26 @@ class IsoHandler(GenericExecutionStep):
             os.path.basename(self.source_chroot)
         )
 
+        return 0
+
+    def post_run(self):
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("IsoHandler"),darkred(self.spec_name),
+                _("executing post_run"),
+            )
+        )
+        return 0
+
+    def kill(self, success = True):
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("IsoHandler"),darkred(self.spec_name),
+                _("executing kill"),
+            )
+        )
+        return 0
+
+    def run(self):
+
         # run outer chroot script
         exec_script = self.metadata.get('pre_iso_script')
         if exec_script:
@@ -439,25 +459,6 @@ class IsoHandler(GenericExecutionStep):
                 )
                 return rc
 
-        return 0
-
-    def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
-                _("executing post_run"),
-            )
-        )
-        return 0
-
-    def kill(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
-                _("executing kill"),
-            )
-        )
-        return 0
-
-    def run(self):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("building ISO image"),
@@ -471,8 +472,8 @@ class IsoHandler(GenericExecutionStep):
             args.extend(["-V",'"',self.iso_title[:32],'"'])
         args.extend(['-o',self.dest_iso,self.source_path])
         self.Output.updateProgress("[%s|%s] %s: %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
-                _("spawning"),args,
+                blue("IsoHandler"), darkred(self.spec_name),
+                _("spawning"), args,
             )
         )
         rc = molecule.utils.exec_cmd(args)
