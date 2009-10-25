@@ -56,7 +56,7 @@ destination_iso_directory: /home/fabio
 # List of packages that would be removed from chrooted system
 # packages_to_remove:
 
-# Custom shell call to packages removal (default is: equo install)
+# Custom shell call to packages removal (default is: equo remove)
 # custom_packages_remove_cmd:
 
 # List of packages that would be added from chrooted system
