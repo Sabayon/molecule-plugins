@@ -53,13 +53,13 @@ destination_iso_directory: /home/fabio
 # Merge directory with destination LiveCD root
 # merge_livecd_root: /put/more/files/onto/CD/root
 
-# List of packages that would be removed from chrooted system
+# List of packages that would be removed from chrooted system (comma separated)
 # packages_to_remove:
 
 # Custom shell call to packages removal (default is: equo remove)
 # custom_packages_remove_cmd:
 
-# List of packages that would be added from chrooted system
+# List of packages that would be added from chrooted system (comma separated)
 # packages_to_add:
 
 # Custom shell call to packages add (default is: equo install)
