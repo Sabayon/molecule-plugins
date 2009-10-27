@@ -209,6 +209,10 @@ class ChrootHandler(BuiltinChrootHandler):
 
     def run(self):
 
+        rc = BuiltinChrootHandler.run(self)
+        if rc != 0:
+            return rc
+
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("hooks running"),
@@ -248,10 +252,6 @@ class ChrootHandler(BuiltinChrootHandler):
                 self.metadata.get('prechroot',[]))
             if rc != 0:
                 return rc
-
-        rc = BuiltinChrootHandler.run(self)
-        if rc != 0:
-            return rc
 
         return 0
 
