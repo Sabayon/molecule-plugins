@@ -29,13 +29,7 @@ class MirrorHandler(GenericExecutionStep):
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
-    def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
-                _("executing pre_run"),
-            )
-        )
-
+    def setup(self):
         # creating destination chroot dir
         self.source_dir = self.metadata['source_chroot']
         self.dest_dir = os.path.join(
@@ -45,6 +39,12 @@ class MirrorHandler(GenericExecutionStep):
         if not os.path.isdir(self.dest_dir):
             os.makedirs(self.dest_dir,0755)
 
+    def pre_run(self):
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("MirrorHandler"),darkred(self.spec_name),
+                _("executing pre_run"),
+            )
+        )
         return 0
 
     def post_run(self):
@@ -101,17 +101,38 @@ class ChrootHandler(GenericExecutionStep):
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
+    def setup(self):
+        self.source_dir = self.metadata['source_chroot']
+        self.dest_dir = os.path.join(
+            self.metadata['destination_chroot'], "chroot",
+            os.path.basename(self.source_dir)
+        )
+
     def pre_run(self):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
-        self.source_dir = self.metadata['source_chroot']
-        self.dest_dir = os.path.join(
-            self.metadata['destination_chroot'],"chroot",
-            os.path.basename(self.source_dir)
-        )
+
+        # run outer chroot script
+        exec_script = self.metadata.get('outer_chroot_script')
+        if exec_script:
+            os.environ['CHROOT_DIR'] = self.source_dir
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"),darkred(self.spec_name),
+                    _("spawning"),[exec_script],
+                )
+            )
+            rc = molecule.utils.exec_cmd([exec_script])
+            if rc != 0:
+                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                        blue("ChrootHandler"),darkred(self.spec_name),
+                        _("outer chroot hook failed"),rc,
+                    )
+                )
+                return rc
+
         return 0
 
     def post_run(self):
@@ -191,6 +212,24 @@ class ChrootHandler(GenericExecutionStep):
                 )
                 return 1
 
+        # run outer chroot script after
+        exec_script = self.metadata.get('outer_chroot_script_after')
+        if exec_script:
+            os.environ['CHROOT_DIR'] = self.source_dir
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"),darkred(self.spec_name),
+                    _("spawning"),[exec_script],
+                )
+            )
+            rc = molecule.utils.exec_cmd([exec_script])
+            if rc != 0:
+                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                        blue("ChrootHandler"),darkred(self.spec_name),
+                        _("outer chroot hook (after inner) failed"),rc,
+                    )
+                )
+                return rc
+
         return 0
 
     def kill(self, success = True):
@@ -208,24 +247,6 @@ class ChrootHandler(GenericExecutionStep):
                 _("hooks running"),
             )
         )
-
-        # run outer chroot script
-        exec_script = self.metadata.get('outer_chroot_script')
-        if exec_script:
-            os.environ['CHROOT_DIR'] = self.source_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("spawning"),[exec_script],
-                )
-            )
-            rc = molecule.utils.exec_cmd([exec_script])
-            if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
-                        _("outer chroot hook failed"),rc,
-                    )
-                )
-                return rc
 
         # run inner chroot script
         exec_script = self.metadata.get('inner_chroot_script')
@@ -259,24 +280,6 @@ class ChrootHandler(GenericExecutionStep):
                     )
                     return rc
 
-        # run outer chroot script after
-        exec_script = self.metadata.get('outer_chroot_script_after')
-        if exec_script:
-            os.environ['CHROOT_DIR'] = self.source_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("spawning"),[exec_script],
-                )
-            )
-            rc = molecule.utils.exec_cmd([exec_script])
-            if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
-                        _("outer chroot hook (after inner) failed"),rc,
-                    )
-                )
-                return rc
-
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("hooks completed succesfully"),
@@ -289,18 +292,7 @@ class CdrootHandler(GenericExecutionStep):
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
-    def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
-                _("executing pre_run"),
-            )
-        )
-
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
-                _("preparing environment"),
-            )
-        )
+    def setup(self):
         self.source_chroot = os.path.join(
             self.metadata['destination_chroot'],"chroot",
             os.path.basename(self.metadata['source_chroot'])
@@ -314,6 +306,18 @@ class CdrootHandler(GenericExecutionStep):
         if not os.path.isdir(self.dest_root):
             os.makedirs(self.dest_root, 0755)
 
+    def pre_run(self):
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("CdrootHandler"),darkred(self.spec_name),
+                _("executing pre_run"),
+            )
+        )
+
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("CdrootHandler"),darkred(self.spec_name),
+                _("preparing environment"),
+            )
+        )
         return 0
 
     def post_run(self):
@@ -404,13 +408,7 @@ class IsoHandler(GenericExecutionStep):
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
-    def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
-                _("executing pre_run"),
-            )
-        )
-
+    def setup(self):
         # setup paths
         self.source_path = os.path.join(
             self.metadata['destination_livecd_root'],"livecd",
@@ -437,6 +435,12 @@ class IsoHandler(GenericExecutionStep):
             os.path.basename(self.source_chroot)
         )
 
+    def pre_run(self):
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("IsoHandler"),darkred(self.spec_name),
+                _("executing pre_run"),
+            )
+        )
         return 0
 
     def post_run(self):

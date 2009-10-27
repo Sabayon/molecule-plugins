@@ -188,16 +188,10 @@ class IsoUnpackHandler(GenericExecutionStep):
 
 class ChrootHandler(BuiltinChrootHandler):
 
-    def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
-                _("executing pre_run"),
-            )
-        )
+    def setup(self):
         # to make superclass working
         self.source_dir = self.metadata['chroot_unpack_path']
         self.dest_dir = self.source_dir
-        return 0
 
     def kill(self, success = True):
         BuiltinChrootHandler.kill(self, success = success)
@@ -262,15 +256,9 @@ class ChrootHandler(BuiltinChrootHandler):
 
 class CdrootHandler(BuiltinCdrootHandler):
 
-    def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
-                _("executing pre_run"),
-            )
-        )
+    def setup(self):
         self.dest_root = self.metadata['cdroot_path']
         self.source_chroot = self.metadata['chroot_unpack_path']
-        return 0
 
     def kill(self, success = True):
         BuiltinCdrootHandler.kill(self, success = success)
@@ -283,12 +271,7 @@ class CdrootHandler(BuiltinCdrootHandler):
 
 class IsoHandler(BuiltinIsoHandler):
 
-    def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
-                _("executing pre_run"),
-            )
-        )
+    def setup(self):
         # cdroot dir
         self.source_path = self.metadata['cdroot_path']
         self.dest_iso = os.path.join(self.metadata['destination_iso_directory'],
@@ -296,7 +279,6 @@ class IsoHandler(BuiltinIsoHandler):
         self.iso_title = self.metadata.get('iso_title', 'Molecule remaster')
         self.source_chroot = self.metadata['chroot_unpack_path']
         self.chroot_dir = self.source_chroot
-        return 0
 
     def kill(self, success = True):
         BuiltinIsoHandler.kill(self, success = success)
