@@ -387,6 +387,14 @@ class RemasterSpec(GenericSpec):
                 'cb': self.valid_ascii,
                 've': self.ve_string_stripper,
             },
+            'paths_to_remove': {
+                'cb': self.ne_list,
+                've': self.valid_path_list,
+            },
+            'paths_to_empty': {
+                'cb': self.ne_list,
+                've': self.valid_path_list,
+            },
         }
 
     def get_execution_steps(self):

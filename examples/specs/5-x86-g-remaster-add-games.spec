@@ -71,3 +71,9 @@ destination_iso_directory: /home/fabio
 # Determine whether repositories update should be run (if packages_to_add is set)
 # (default is: no), values are: yes, no.
 # execute_repositories_update: no
+
+# Directories to remove completely (comma separated)
+# paths_to_remove:
+
+# Directories to empty (comma separated)
+# paths_to_empty:
