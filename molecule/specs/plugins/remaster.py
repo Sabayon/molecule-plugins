@@ -209,16 +209,6 @@ class ChrootHandler(BuiltinChrootHandler):
 
     def run(self):
 
-        rc = BuiltinChrootHandler.run(self)
-        if rc != 0:
-            return rc
-
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
-                _("hooks running"),
-            )
-        )
-
         packages_to_add = self.metadata.get('packages_to_add', [])
         if packages_to_add:
 
@@ -232,6 +222,19 @@ class ChrootHandler(BuiltinChrootHandler):
                     self.metadata.get('prechroot',[]))
                 if rc != 0:
                     return rc
+
+        rc = BuiltinChrootHandler.run(self)
+        if rc != 0:
+            return rc
+
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("ChrootHandler"),darkred(self.spec_name),
+                _("hooks running"),
+            )
+        )
+
+        packages_to_add = self.metadata.get('packages_to_add', [])
+        if packages_to_add:
 
             add_cmd = self.metadata.get('custom_packages_add_cmd',
                 self.Config['pkgs_adder'])
