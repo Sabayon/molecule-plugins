@@ -120,7 +120,7 @@ class IsoUnpackHandler(GenericExecutionStep):
         )
 
         def dorm():
-            shutil.rmtree(self.metadata['chroot_unpack_path'], True)
+            shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
 
         # create chroot path
         try:
@@ -179,7 +179,7 @@ class IsoUnpackHandler(GenericExecutionStep):
 
         if not success:
             try:
-                shutil.rmtree(self.metadata['chroot_unpack_path'], True)
+                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
             except (shutil.Error, OSError,):
                 pass
 
@@ -199,12 +199,13 @@ class ChrootHandler(BuiltinChrootHandler):
         self.dest_dir = self.source_dir
         return 0
 
-    def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
-                _("executing post_run"),
-            )
-        )
+    def kill(self, success = True):
+        BuiltinChrootHandler.kill(self, success = success)
+        if not success:
+            try:
+                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+            except (shutil.Error, OSError,):
+                pass
         return 0
 
     def run(self):
@@ -271,6 +272,15 @@ class CdrootHandler(BuiltinCdrootHandler):
         self.source_chroot = self.metadata['chroot_unpack_path']
         return 0
 
+    def kill(self, success = True):
+        BuiltinCdrootHandler.kill(self, success = success)
+        if not success:
+            try:
+                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+            except (shutil.Error, OSError,):
+                pass
+        return 0
+
 class IsoHandler(BuiltinIsoHandler):
 
     def pre_run(self):
@@ -287,6 +297,16 @@ class IsoHandler(BuiltinIsoHandler):
         self.source_chroot = self.metadata['chroot_unpack_path']
         self.chroot_dir = self.source_chroot
         return 0
+
+    def kill(self, success = True):
+        BuiltinIsoHandler.kill(self, success = success)
+        if not success:
+            try:
+                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+            except (shutil.Error, OSError,):
+                pass
+        return 0
+
 
 class RemasterSpec(GenericSpec):
 
