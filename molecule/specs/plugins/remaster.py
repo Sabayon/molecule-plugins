@@ -342,6 +342,10 @@ class RemasterSpec(GenericSpec):
                 'cb': self.valid_path_string,
                 've': self.ve_string_stripper,
             },
+            'outer_chroot_script_after': {
+                'cb': self.valid_path_string,
+                've': self.ve_string_stripper,
+            },
             'extra_mkisofs_parameters': {
                 'cb': self.always_valid,
                 've': self.ve_string_splitter,

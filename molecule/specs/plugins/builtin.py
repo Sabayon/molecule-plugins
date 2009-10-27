@@ -209,6 +209,24 @@ class ChrootHandler(GenericExecutionStep):
             )
         )
 
+        # run outer chroot script
+        exec_script = self.metadata.get('outer_chroot_script')
+        if exec_script:
+            os.environ['CHROOT_DIR'] = self.source_dir
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"),darkred(self.spec_name),
+                    _("spawning"),[exec_script],
+                )
+            )
+            rc = molecule.utils.exec_cmd([exec_script])
+            if rc != 0:
+                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                        blue("ChrootHandler"),darkred(self.spec_name),
+                        _("outer chroot hook failed"),rc,
+                    )
+                )
+                return rc
+
         # run inner chroot script
         exec_script = self.metadata.get('inner_chroot_script')
         if exec_script:
@@ -241,8 +259,8 @@ class ChrootHandler(GenericExecutionStep):
                     )
                     return rc
 
-        # run outer chroot script
-        exec_script = self.metadata.get('outer_chroot_script')
+        # run outer chroot script after
+        exec_script = self.metadata.get('outer_chroot_script_after')
         if exec_script:
             os.environ['CHROOT_DIR'] = self.source_dir
             self.Output.updateProgress("[%s|%s] %s: %s" % (
@@ -254,7 +272,7 @@ class ChrootHandler(GenericExecutionStep):
             if rc != 0:
                 self.Output.updateProgress("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
-                        _("outer chroot hook failed"),rc,
+                        _("outer chroot hook (after inner) failed"),rc,
                     )
                 )
                 return rc
@@ -560,6 +578,10 @@ class LivecdSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'inner_chroot_script': {
+                'cb': self.valid_path_string,
+                've': self.ve_string_stripper,
+            },
+            'outer_chroot_script_after': {
                 'cb': self.valid_path_string,
                 've': self.ve_string_stripper,
             },
