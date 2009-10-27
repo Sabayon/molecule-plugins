@@ -15,13 +15,17 @@ prechroot: linux32
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso_images/Sabayon_5.0_G.iso
 
-# Outer chroot script command, to be executed outside destination chroot before packing it
-# - x86-archscript.sh - setup kernel bins
+# Outer chroot script command, to be executed outside destination chroot before
+# before entering it (and before inner_chroot_script)
 # outer_chroot_script: /path/to/script/to/be/executed/outside
 
 # Inner chroot script command, to be executed inside destination chroot before packing it
 # - kmerge.sh - setup kernel bins
 # inner_chroot_script: /sabayon/scripts/inner_chroot_script.sh
+
+# Outer chroot script command, to be executed outside destination chroot before
+# before entering it (and AFTER inner_chroot_script)
+# outer_chroot_script_after: /path/to/script/to/be/executed/outside/after
 
 # Extra mkisofs parameters, perhaps something to include/use your bootloader
 extra_mkisofs_parameters: -b isolinux/isolinux.bin -c isolinux/boot.cat

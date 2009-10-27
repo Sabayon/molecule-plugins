@@ -42,6 +42,10 @@ destination_chroot: /sabayon
 # - kmerge.sh - setup kernel bins
 inner_chroot_script: /sabayon/scripts/inner_chroot_script.sh
 
+# Outer chroot script command, to be executed outside destination chroot before
+# before entering it (and AFTER inner_chroot_script)
+# outer_chroot_script_after: /path/to/script/to/be/executed/outside/after
+
 # Destination LiveCD root directory, where files are placed before getting mkisofs'ed
 # NOTE: data will be stored inside an auto-generated subdir
 destination_livecd_root: /sabayon
