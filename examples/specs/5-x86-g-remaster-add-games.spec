@@ -47,7 +47,7 @@ destination_iso_directory: /home/fabio
 # Alternative squashfs file mount command (default is: mount -o loop -t squashfs)
 # squash_mounter:
 
-# Alternative ISO squashfs command (default is: umount)
+# Alternative ISO squashfs umount command (default is: umount)
 # squash_umounter:
 
 # Merge directory with destination LiveCD root
