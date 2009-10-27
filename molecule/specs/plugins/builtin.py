@@ -121,6 +121,45 @@ class ChrootHandler(GenericExecutionStep):
             )
         )
 
+        # now remove paths to empty
+        empty_paths = self.metadata.get('paths_to_empty',[])
+        for mypath in empty_paths:
+            mypath = self.dest_dir+mypath
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"),darkred(self.spec_name),
+                    _("emptying dir"),mypath,
+                )
+            )
+            if os.path.isdir(mypath):
+                molecule.utils.empty_dir(mypath)
+
+        # now remove paths to remove (...)
+        remove_paths = self.metadata.get('paths_to_remove',[])
+
+        # setup sandbox
+        sb_dirs = [self.dest_dir]
+        sb_env = {
+            'SANDBOX_WRITE': ':'.join(sb_dirs),
+        }
+        myenv = os.environ.copy()
+        myenv.update(sb_env)
+
+        for mypath in remove_paths:
+            mypath = self.dest_dir+mypath
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"),darkred(self.spec_name),
+                    _("removing dir"),mypath,
+                )
+            )
+            rc = molecule.utils.remove_path_sandbox(mypath, sb_env)
+            if rc != 0:
+                self.Output.updateProgress("[%s|%s] %s: %s: %s" % (
+                        blue("ChrootHandler"),darkred(self.spec_name),
+                        _("removal failed for"),mypath,rc,
+                    )
+                )
+                return rc
+
         # write release file
         release_file = self.metadata.get('release_file')
         if isinstance(release_file,basestring) and release_file:
@@ -216,45 +255,6 @@ class ChrootHandler(GenericExecutionStep):
                 self.Output.updateProgress("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
                         _("outer chroot hook failed"),rc,
-                    )
-                )
-                return rc
-
-        # now remove paths to empty
-        empty_paths = self.metadata.get('paths_to_empty',[])
-        for mypath in empty_paths:
-            mypath = self.dest_dir+mypath
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("emptying dir"),mypath,
-                )
-            )
-            if os.path.isdir(mypath):
-                molecule.utils.empty_dir(mypath)
-
-        # now remove paths to remove (...)
-        remove_paths = self.metadata.get('paths_to_remove',[])
-
-        # setup sandbox
-        sb_dirs = [self.dest_dir]
-        sb_env = {
-            'SANDBOX_WRITE': ':'.join(sb_dirs),
-        }
-        myenv = os.environ.copy()
-        myenv.update(sb_env)
-
-        for mypath in remove_paths:
-            mypath = self.dest_dir+mypath
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("removing dir"),mypath,
-                )
-            )
-            rc = molecule.utils.remove_path_sandbox(mypath, sb_env)
-            if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
-                        _("removal failed for"),mypath,rc,
                     )
                 )
                 return rc
