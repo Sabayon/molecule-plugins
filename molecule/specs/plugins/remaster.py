@@ -322,7 +322,6 @@ class RemasterSpec(GenericSpec):
             'extra_mkisofs_parameters': {
                 'cb': self.always_valid,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'pre_iso_script': {
                 'cb': self.valid_exec,
@@ -339,22 +338,18 @@ class RemasterSpec(GenericSpec):
             'iso_mounter': {
                 'cb': self.ne_list,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'iso_umounter': {
                 'cb': self.ne_list,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'squash_mounter': {
                 'cb': self.ne_list,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'squash_umounter': {
                 'cb': self.ne_list,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'merge_livecd_root': {
                 'cb': self.valid_dir,
@@ -370,18 +365,15 @@ class RemasterSpec(GenericSpec):
             },
             'packages_to_remove': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
+                've': self.valid_comma_sep_list,
             },
             'packages_to_add': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
+                've': self.valid_comma_sep_list,
             },
             'repositories_update_cmd': {
                 'cb': self.ne_list,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'execute_repositories_update': {
                 'cb': self.valid_ascii,

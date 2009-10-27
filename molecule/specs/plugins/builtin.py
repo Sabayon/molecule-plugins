@@ -578,7 +578,6 @@ class LivecdSpec(GenericSpec):
             'extra_mkisofs_parameters': {
                 'cb': self.always_valid,
                 've': self.ve_string_splitter,
-                'mod': self.ve_string_splitter,
             },
             'pre_iso_script': {
                 'cb': self.valid_exec,
