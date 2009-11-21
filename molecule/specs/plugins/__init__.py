@@ -18,7 +18,8 @@
 
 from molecule.specs.plugins.builtin import LivecdSpec
 from molecule.specs.plugins.remaster import RemasterSpec
+from molecule.specs.plugins.tar import IsoToTarSpec
 
 # FIXME: this will need to be pluggable (and plugin factory is required)
 SPEC_PLUGS = dict((x.execution_strategy(), x,) for x in \
-    (LivecdSpec, RemasterSpec))
+    (LivecdSpec, RemasterSpec, IsoToTarSpec))
