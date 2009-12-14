@@ -23,6 +23,10 @@ source_iso: /sabayon/iso_images/Sabayon_5.0_G.iso
 # - kmerge.sh - setup kernel bins
 # inner_chroot_script: /sabayon/scripts/inner_chroot_script.sh
 
+# Inner chroot script command, to be executed inside destination chroot after
+# packages installation and removal
+# inner_chroot_script_after: /sabayon/scripts/inner_chroot_script_after.sh
+
 # Outer chroot script command, to be executed outside destination chroot before
 # before entering it (and AFTER inner_chroot_script)
 # outer_chroot_script_after: /path/to/script/to/be/executed/outside/after

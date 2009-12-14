@@ -251,6 +251,14 @@ class ChrootHandler(BuiltinChrootHandler):
             if rc != 0:
                 return rc
 
+        # run inner chroot script after pkgs handling
+        exec_script = self.metadata.get('inner_chroot_script_after')
+        if exec_script:
+            if os.path.isfile(exec_script) and os.access(exec_script, os.R_OK):
+                rc = self._exec_inner_script(exec_script)
+                if rc != 0:
+                    return rc
+
         return 0
 
 
@@ -321,6 +329,10 @@ class RemasterSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'inner_chroot_script': {
+                'cb': self.valid_path_string,
+                've': self.ve_string_stripper,
+            },
+            'inner_chroot_script_after': {
                 'cb': self.valid_path_string,
                 've': self.ve_string_stripper,
             },
