@@ -377,12 +377,12 @@ class RemasterSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'custom_packages_remove_cmd': {
-                'cb': self.valid_ascii,
-                've': self.ve_string_stripper,
+                'cb': self.ne_list,
+                've': self.ve_string_splitter,
             },
             'custom_packages_add_cmd': {
-                'cb': self.valid_ascii,
-                've': self.ve_string_stripper,
+                'cb': self.ne_list,
+                've': self.ve_string_splitter,
             },
             'packages_to_remove': {
                 'cb': self.ne_list,
