@@ -96,8 +96,25 @@ class TarHandler(GenericExecutionStep):
             )
         )
 
+    def _run_error_script(self):
+        error_script = self.metadata.get('error_script')
+        if error_script:
+            os.environ['CHROOT_DIR'] = self.chroot_path
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("TarHandler"),darkred(self.spec_name),
+                    _("spawning"), [error_script],
+                )
+            )
+            molecule.utils.exec_cmd([error_script])
+            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
+                try:
+                    del os.environ[env_key]
+                except KeyError:
+                    continue
+
     def kill(self, success = True):
         if not success:
+            self._run_error_script()
             try:
                 shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
             except (shutil.Error, OSError,):
@@ -135,6 +152,10 @@ class IsoToTarSpec(GenericSpec):
             },
             'compression_method': {
                 'cb': self.supported_compression_method,
+                've': self.ve_string_stripper,
+            },
+            'error_script': {
+                'cb': self.valid_exec,
                 've': self.ve_string_stripper,
             },
             'outer_chroot_script': {
