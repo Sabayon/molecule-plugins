@@ -34,6 +34,13 @@ destination_chroot: /sabayon
 # Extra mirror (r)sync parameters
 # extra_rsync_parameters:
 
+# Error script command, executed when something went wrong and molecule has to terminate the execution
+# environment variables exported:
+# - CHROOT_DIR: path to chroot directory, if any
+# - CDROOT_DIR: path to livecd root directory, if any
+# - SOURCE_CHROOT_DIR: path from where chroot is copied for final handling
+# error_script: /path/to/script/to/be/executed/outside/after
+
 # Outer chroot script command, to be executed outside destination chroot before packing it
 # - x86-archscript.sh - setup kernel bins
 # outer_chroot_script: /path/to/script/to/be/executed/outside

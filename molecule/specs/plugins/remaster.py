@@ -49,6 +49,7 @@ class IsoUnpackHandler(GenericExecutionStep):
 
         # setup upcoming new chroot path
         self.dest_root = os.path.join(unpack_prefix, "cdroot")
+        self.chroot_dir = self.metadata['chroot_unpack_path']
         self.metadata['cdroot_path'] = self.dest_root
 
     def pre_run(self):
@@ -143,12 +144,32 @@ class IsoUnpackHandler(GenericExecutionStep):
         )
         return 0
 
+    def _run_error_script(self):
+        error_script = self.metadata.get('error_script')
+        if error_script:
+            os.environ['CHROOT_DIR'] = self.chroot_dir
+            os.environ['CDROOT_DIR'] = self.dest_root
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("IsoUnpackHandler"),darkred(self.spec_name),
+                    _("spawning"), [error_script],
+                )
+            )
+            molecule.utils.exec_cmd([error_script])
+            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
+                try:
+                    del os.environ[env_key]
+                except KeyError:
+                    continue
+
     def kill(self, success = True):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("IsoUnpackHandler"),darkred(self.spec_name),
                 _("executing kill"),
             )
         )
+
+        if not success:
+            self._run_error_script()
 
         rc = 0
         if self.squash_mounted:
@@ -322,6 +343,10 @@ class RemasterSpec(GenericSpec):
             },
             'iso_title': {
                 'cb': self.ne_string,
+                've': self.ve_string_stripper,
+            },
+            'error_script': {
+                'cb': self.valid_exec,
                 've': self.ve_string_stripper,
             },
             'outer_chroot_script': {

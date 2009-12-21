@@ -16,6 +16,13 @@ prechroot: linux32
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso_images/Sabayon_5.0_G.iso
 
+# Error script command, executed when something went wrong and molecule has to terminate the execution
+# environment variables exported:
+# - CHROOT_DIR: path to chroot directory, if any
+# - CDROOT_DIR: path to livecd root directory, if any
+# - SOURCE_CHROOT_DIR: path from where chroot is copied for final handling
+# error_script: /path/to/script/to/be/executed/outside/after
+
 # Outer chroot script command, to be executed outside destination chroot before
 # before entering it (and before inner_chroot_script)
 # outer_chroot_script: /path/to/script/to/be/executed/outside
