@@ -654,7 +654,7 @@ class LivecdSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'extra_rsync_parameters': {
-                'cb': self.valid_path_string,
+                'cb': self.always_valid,
                 've': self.ve_string_splitter,
             },
             'merge_destination_chroot': {
