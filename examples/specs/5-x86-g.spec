@@ -30,6 +30,11 @@ destination_chroot: /sabayon
 # Extra mirror (r)sync parameters
 extra_rsync_parameters: --one-file-system --exclude proc/*
 
+# Inner "source" chroot script command, to be executed inside source chroot
+# before copying to destination chroot. In this way you can commit automatic
+# and persistent updates to your chroot
+# inner_source_chroot_script: /path/to/inner_source_chroot_executable_hook
+
 # Outer chroot script command, to be executed outside destination chroot before packing it
 # - x86-archscript.sh - setup kernel bins
 outer_chroot_script: /sabayon/scripts/remaster_pre.sh
