@@ -27,9 +27,10 @@ from molecule.specs.skel import GenericExecutionStep, GenericSpec
 from molecule.specs.plugins.builtin import ChrootHandler as BuiltinChrootHandler
 from molecule.specs.plugins.builtin import CdrootHandler as BuiltinCdrootHandler
 from molecule.specs.plugins.builtin import IsoHandler as BuiltinIsoHandler
+from molecule.specs.plugins.builtin import BuiltinHandler
 import molecule.utils
 
-class IsoUnpackHandler(GenericExecutionStep):
+class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -144,23 +145,6 @@ class IsoUnpackHandler(GenericExecutionStep):
         )
         return 0
 
-    def _run_error_script(self):
-        error_script = self.metadata.get('error_script')
-        if error_script:
-            os.environ['CHROOT_DIR'] = self.chroot_dir
-            os.environ['CDROOT_DIR'] = self.dest_root
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("IsoUnpackHandler"),darkred(self.spec_name),
-                    _("spawning"), [error_script],
-                )
-            )
-            molecule.utils.exec_cmd([error_script])
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
-
     def kill(self, success = True):
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("IsoUnpackHandler"),darkred(self.spec_name),
@@ -169,7 +153,7 @@ class IsoUnpackHandler(GenericExecutionStep):
         )
 
         if not success:
-            self._run_error_script()
+            self._run_error_script(None, self.chroot_dir, self.dest_root)
 
         rc = 0
         if self.squash_mounted:
@@ -275,7 +259,8 @@ class ChrootHandler(BuiltinChrootHandler):
         # run inner chroot script after pkgs handling
         exec_script = self.metadata.get('inner_chroot_script_after')
         if exec_script:
-            if os.path.isfile(exec_script) and os.access(exec_script, os.R_OK):
+            if os.path.isfile(exec_script[0]) and \
+                os.access(exec_script[0], os.R_OK):
                 rc = self._exec_inner_script(exec_script)
                 if rc != 0:
                     return rc
@@ -346,32 +331,32 @@ class RemasterSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'error_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'outer_chroot_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'inner_chroot_script': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_path_string_first_list_item,
+                've': self.ve_string_splitter,
             },
             'inner_chroot_script_after': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_path_string_first_list_item,
+                've': self.ve_string_splitter,
             },
             'outer_chroot_script_after': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'extra_mkisofs_parameters': {
                 'cb': self.always_valid,
                 've': self.ve_string_splitter,
             },
             'pre_iso_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'destination_iso_directory': {
                 'cb': self.valid_dir,

@@ -24,7 +24,32 @@ from molecule.output import red, brown, blue, green, purple, darkgreen, \
 import molecule.utils
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
 
-class MirrorHandler(GenericExecutionStep):
+class BuiltinHandler:
+    """
+    This class contains code in common between built-in handler classes.
+    """
+    def _run_error_script(self, source_chroot_dir, chroot_dir, cdroot_dir):
+        error_script = self.metadata.get('error_script')
+        if error_script:
+            if source_chroot_dir:
+                os.environ['SOURCE_CHROOT_DIR'] = source_chroot_dir
+            if chroot_dir:
+                os.environ['CHROOT_DIR'] = chroot_dir
+            if cdroot_dir:
+                os.environ['CDROOT_DIR'] = cdroot_dir
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("MirrorHandler"),darkred(self.spec_name),
+                    _("spawning"), error_script,
+                )
+            )
+            molecule.utils.exec_cmd(error_script)
+            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
+                try:
+                    del os.environ[env_key]
+                except KeyError:
+                    continue
+
+class MirrorHandler(GenericExecutionStep, BuiltinHandler):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -55,26 +80,9 @@ class MirrorHandler(GenericExecutionStep):
         )
         return 0
 
-    def _run_error_script(self):
-        error_script = self.metadata.get('error_script')
-        if error_script:
-            os.environ['SOURCE_CHROOT_DIR'] = self.source_dir
-            os.environ['CHROOT_DIR'] = self.dest_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("MirrorHandler"),darkred(self.spec_name),
-                    _("spawning"), [error_script],
-                )
-            )
-            molecule.utils.exec_cmd([error_script])
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
-
     def kill(self, success = True):
         if not success:
-            self._run_error_script()
+            self._run_error_script(self.source_dir, self.dest_dir, None)
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("executing kill"),
@@ -115,7 +123,7 @@ class MirrorHandler(GenericExecutionStep):
         )
         return 0
 
-class ChrootHandler(GenericExecutionStep):
+class ChrootHandler(GenericExecutionStep, BuiltinHandler):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -139,11 +147,11 @@ class ChrootHandler(GenericExecutionStep):
         if exec_script:
             os.environ['CHROOT_DIR'] = self.source_dir
             self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("spawning"),[exec_script],
+                    blue("ChrootHandler"), darkred(self.spec_name),
+                    _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd([exec_script])
+            rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
                 self.Output.updateProgress("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
@@ -236,11 +244,11 @@ class ChrootHandler(GenericExecutionStep):
         if exec_script:
             os.environ['CHROOT_DIR'] = self.source_dir
             self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("spawning"),[exec_script],
+                    blue("ChrootHandler"), darkred(self.spec_name),
+                    _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd([exec_script])
+            rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
                 self.Output.updateProgress("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
@@ -251,26 +259,9 @@ class ChrootHandler(GenericExecutionStep):
 
         return 0
 
-    def _run_error_script(self):
-        error_script = self.metadata.get('error_script')
-        if error_script:
-            os.environ['SOURCE_CHROOT_DIR'] = self.source_dir
-            os.environ['CHROOT_DIR'] = self.dest_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("MirrorHandler"),darkred(self.spec_name),
-                    _("spawning"), [error_script],
-                )
-            )
-            molecule.utils.exec_cmd([error_script])
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
-
     def kill(self, success = True):
         if not success:
-            self._run_error_script()
+            self._run_error_script(self.source_dir, self.dest_dir, None)
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("ChrootHandler"),
                 darkred(self.spec_name),_("executing kill"),
@@ -288,14 +279,14 @@ class ChrootHandler(GenericExecutionStep):
 
         os.makedirs(tmp_dir)
         tmp_exec = os.path.join(tmp_dir, "inner_exec")
-        shutil.copy2(exec_script, tmp_exec)
+        shutil.copy2(exec_script[0], tmp_exec)
         os.chmod(tmp_exec, 0755)
         dest_exec = tmp_exec[len(self.dest_dir):]
         if not dest_exec.startswith("/"):
             dest_exec = "/%s" % (dest_exec,)
 
-        rc = molecule.utils.exec_chroot_cmd([dest_exec], self.dest_dir,
-            self.metadata.get('prechroot',[]))
+        rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
+            self.dest_dir, self.metadata.get('prechroot',[]))
         os.remove(tmp_exec)
         os.rmdir(tmp_dir)
 
@@ -318,7 +309,7 @@ class ChrootHandler(GenericExecutionStep):
         # run inner chroot script
         exec_script = self.metadata.get('inner_chroot_script')
         if exec_script:
-            if os.path.isfile(exec_script) and os.access(exec_script, os.R_OK):
+            if os.path.isfile(exec_script[0]) and os.access(exec_script[0], os.R_OK):
                 rc = self._exec_inner_script(exec_script)
                 if rc != 0:
                     return rc
@@ -331,7 +322,7 @@ class ChrootHandler(GenericExecutionStep):
         )
         return 0
 
-class CdrootHandler(GenericExecutionStep):
+class CdrootHandler(GenericExecutionStep, BuiltinHandler):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -372,27 +363,10 @@ class CdrootHandler(GenericExecutionStep):
         )
         return 0
 
-    def _run_error_script(self):
-        error_script = self.metadata.get('error_script')
-        if error_script:
-            os.environ['SOURCE_CHROOT_DIR'] = self.metadata['source_chroot']
-            os.environ['CHROOT_DIR'] = self.source_chroot
-            os.environ['CDROOT_DIR'] = self.dest_root
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("CdrootHandler"),darkred(self.spec_name),
-                    _("spawning"), [error_script],
-                )
-            )
-            molecule.utils.exec_cmd([error_script])
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
-
     def kill(self, success = True):
         if not success:
-            self._run_error_script()
+            self._run_error_script(self.source_dir, self.dest_dir,
+                self.dest_root)
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("executing kill"),
@@ -411,7 +385,7 @@ class CdrootHandler(GenericExecutionStep):
         comp_output = self.Config['chroot_compressor_output_file']
         if "chroot_compressor_output_file" in self.metadata:
             comp_output = self.metadata.get('chroot_compressor_output_file')
-        comp_output = os.path.join(self.dest_root,comp_output)
+        comp_output = os.path.join(self.dest_root, comp_output)
         args.extend([self.source_chroot,comp_output])
         args.extend(self.Config['chroot_compressor_builtin_args'])
         args.extend(self.metadata.get('extra_mksquashfs_parameters',[]))
@@ -467,7 +441,7 @@ class CdrootHandler(GenericExecutionStep):
 
         return 0
 
-class IsoHandler(GenericExecutionStep):
+class IsoHandler(GenericExecutionStep, BuiltinHandler):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -515,27 +489,10 @@ class IsoHandler(GenericExecutionStep):
         )
         return 0
 
-    def _run_error_script(self):
-        error_script = self.metadata.get('error_script')
-        if error_script:
-            os.environ['SOURCE_CHROOT_DIR'] = self.source_chroot
-            os.environ['CHROOT_DIR'] = self.chroot_dir
-            os.environ['CDROOT_DIR'] = self.source_path
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("IsoHandler"),darkred(self.spec_name),
-                    _("spawning"), [error_script],
-                )
-            )
-            molecule.utils.exec_cmd([error_script])
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
-
     def kill(self, success = True):
         if not success:
-            self._run_error_script()
+            self._run_error_script(self.source_chroot, self.chroot_dir,
+                self.source_path)
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("executing kill"),
@@ -553,10 +510,10 @@ class IsoHandler(GenericExecutionStep):
             os.environ['CDROOT_DIR'] = self.source_path
             self.Output.updateProgress("[%s|%s] %s: %s" % (
                     blue("IsoHandler"),darkred(self.spec_name),
-                    _("spawning"),[exec_script],
+                    _("spawning"),exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd([exec_script])
+            rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
                 self.Output.updateProgress("[%s|%s] %s: %s" % (
                         blue("IsoHandler"),darkred(self.spec_name),
@@ -662,20 +619,20 @@ class LivecdSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'error_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'outer_chroot_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'inner_chroot_script': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_path_string_first_list_item,
+                've': self.ve_string_splitter,
             },
             'outer_chroot_script_after': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'destination_livecd_root': {
                 'cb': self.valid_path_string,
@@ -694,8 +651,8 @@ class LivecdSpec(GenericSpec):
                 've': self.ve_string_splitter,
             },
             'pre_iso_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'destination_iso_directory': {
                 'cb': self.valid_dir,

@@ -23,13 +23,14 @@ import shutil
 from molecule.i18n import _
 from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
+from molecule.specs.plugins.builtin import BuiltinHandler
 from molecule.specs.plugins.remaster import IsoUnpackHandler, \
     ChrootHandler
 import molecule.utils
 
 SUPPORTED_COMPRESSION_METHODS = ["bz2", "gz"]
 
-class TarHandler(GenericExecutionStep):
+class TarHandler(GenericExecutionStep, BuiltinHandler):
 
     _TAR_EXEC = "/bin/tar"
     _TAR_COMP_METHODS = {
@@ -96,25 +97,9 @@ class TarHandler(GenericExecutionStep):
             )
         )
 
-    def _run_error_script(self):
-        error_script = self.metadata.get('error_script')
-        if error_script:
-            os.environ['CHROOT_DIR'] = self.chroot_path
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("TarHandler"),darkred(self.spec_name),
-                    _("spawning"), [error_script],
-                )
-            )
-            molecule.utils.exec_cmd([error_script])
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
-
     def kill(self, success = True):
         if not success:
-            self._run_error_script()
+            self._run_error_script(None, self.chroot_path, None)
             try:
                 shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
             except (shutil.Error, OSError,):
@@ -155,20 +140,20 @@ class IsoToTarSpec(GenericSpec):
                 've': self.ve_string_stripper,
             },
             'error_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'outer_chroot_script': {
-                'cb': self.valid_exec,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'inner_chroot_script': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_path_string_first_list_item,
+                've': self.ve_string_splitter,
             },
             'outer_chroot_script_after': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'destination_tar_directory': {
                 'cb': self.valid_dir,
