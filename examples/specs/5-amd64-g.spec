@@ -1,10 +1,6 @@
 # Sabayon Linux 4 amd64 Molecule spec file
 # squashfs, mkisofs needed
 
-# Define an alternative execution strategy, in this case, the value must be
-# "livecd"
-# execution_strategy: livecd
-
 # pre chroot command, example, for 32bit chroots on 64bit system, you always have to append "linux32"
 # this is useful for inner_chroot_script
 # prechroot:
@@ -13,7 +9,7 @@
 release_string: Sabayon Linux
 
 # Release Version
-release_version: 5.0
+release_version: 5.3
 
 # Release Version string description
 release_desc: amd64 G
@@ -32,26 +28,19 @@ destination_chroot: /sabayon
 # merge_destination_chroot:
 
 # Extra mirror (r)sync parameters
-# extra_rsync_parameters:
-
-# Error script command, executed when something went wrong and molecule has to terminate the execution
-# environment variables exported:
-# - CHROOT_DIR: path to chroot directory, if any
-# - CDROOT_DIR: path to livecd root directory, if any
-# - SOURCE_CHROOT_DIR: path from where chroot is copied for final handling
-# error_script: /path/to/script/to/be/executed/outside/after
+extra_rsync_parameters: --one-file-system --exclude proc/*
 
 # Outer chroot script command, to be executed outside destination chroot before packing it
 # - amd64-archscript.sh - setup kernel bins
-# outer_chroot_script: /path/to/script/to/be/executed/outside
+outer_chroot_script: /sabayon/scripts/remaster_pre.sh
+
+# Outer chroot script command, to be executed outside destination chroot before
+# before entering it (and AFTER inner_chroot_script)
+outer_chroot_script_after: /sabayon/scripts/remaster_post.sh
 
 # Inner chroot script command, to be executed inside destination chroot before packing it
 # - kmerge.sh - setup kernel bins
 inner_chroot_script: /sabayon/scripts/inner_chroot_script.sh
-
-# Outer chroot script command, to be executed outside destination chroot before
-# before entering it (and AFTER inner_chroot_script)
-# outer_chroot_script_after: /path/to/script/to/be/executed/outside/after
 
 # Destination LiveCD root directory, where files are placed before getting mkisofs'ed
 # NOTE: data will be stored inside an auto-generated subdir
@@ -70,10 +59,10 @@ extra_mkisofs_parameters: -b isolinux/isolinux.bin -c isolinux/boot.cat
 pre_iso_script: /sabayon/scripts/cdroot.py
 
 # Destination directory for the ISO image path
-destination_iso_directory: /home/fabio
+destination_iso_directory: /sabayon/iso
 
 # Destination ISO image name, call whatever you want.iso, not mandatory
-# destination_iso_image_name:
+destination_iso_image_name: Sabayon_Linux_5.3_amd64_G.iso
 
 # Directories to remove completely (comma separated)
 paths_to_remove:
@@ -97,7 +86,7 @@ paths_to_remove:
     /var/lib/entropy/smartapps/amd64/*,
     /var/lib/entropy/smartapps/amd64/*,
     /var/lib/entropy/tmp/*,
-    /var/lib/entropy/packages/*,
+    /var/lib/entropy/packages*/*,
     /var/tmp/entropy/*,
     /*.txt,
     /usr/portage/a*,
@@ -129,10 +118,20 @@ paths_to_remove:
     /usr/portage/y*,
     /usr/portage/z*,
     /etc/ssh/ssh_host_*,
+    /var/run/screen*,
     /entropy,
     /tmp/equoerror.txt,
     /var/cache/man,
-    /var/lib/entropy/glsa/*
+    /var/lib/entropy/glsa/*,
+    /opt/anaconda/usr/lib32,
+    /opt/anaconda/usr/share/anaconda/po,
+    /var/log/entropy/*.log,
+    /etc/mtab,
+    /boot/grub/grub.c*,
+    /tmp/.ICE-unix*,
+    /tmp/*.txt,
+    /tmp/.X*,
+    /boot/grub/device.map
 
 # Directories to empty (comma separated)
 paths_to_empty:
