@@ -38,7 +38,7 @@ class BuiltinHandler:
             if cdroot_dir:
                 os.environ['CDROOT_DIR'] = cdroot_dir
             self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("MirrorHandler"),darkred(self.spec_name),
+                    blue("BuiltinHandler"),darkred(self.spec_name),
                     _("spawning"), error_script,
                 )
             )
@@ -48,6 +48,35 @@ class BuiltinHandler:
                     del os.environ[env_key]
                 except KeyError:
                     continue
+
+    def _exec_inner_script(self, exec_script, dest_chroot):
+
+        while 1:
+            tmp_dir = os.path.join(dest_chroot,
+                str(molecule.utils.get_random_number()))
+            if not os.path.lexists(tmp_dir):
+                break
+
+        os.makedirs(tmp_dir)
+        tmp_exec = os.path.join(tmp_dir, "inner_exec")
+        shutil.copy2(exec_script[0], tmp_exec)
+        os.chmod(tmp_exec, 0755)
+        dest_exec = tmp_exec[len(dest_chroot):]
+        if not dest_exec.startswith("/"):
+            dest_exec = "/%s" % (dest_exec,)
+
+        rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
+            dest_chroot, self.metadata.get('prechroot',[]))
+        os.remove(tmp_exec)
+        os.rmdir(tmp_dir)
+
+        if rc != 0:
+            self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    blue("BuiltinHandler"),darkred(self.spec_name),
+                    _("inner chroot hook failed"),rc,
+                )
+            )
+        return rc
 
 class MirrorHandler(GenericExecutionStep, BuiltinHandler):
 
@@ -70,6 +99,27 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
                 _("executing pre_run"),
             )
         )
+
+        exec_script = self.metadata.get('inner_source_chroot_script')
+        if exec_script:
+            if os.path.isfile(exec_script[0]) and \
+                os.access(exec_script[0], os.R_OK):
+                rc = self._exec_inner_script(exec_script, self.source_dir)
+                if rc != 0:
+                    self.Output.updateProgress("[%s|%s] %s: %s" % (
+                            blue("MirrorHandler"), darkred(self.spec_name),
+                            _("inner_source_chroot_script failed"), rc,
+                        )
+                    )
+                    return rc
+
+
+        self.Output.updateProgress("[%s|%s] %s" % (
+                blue("MirrorHandler"),darkred(self.spec_name),
+                _("pre_run completed successfully"),
+            )
+        )
+
         return 0
 
     def post_run(self):
@@ -269,35 +319,6 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         )
         return 0
 
-    def _exec_inner_script(self, exec_script):
-
-        while 1:
-            tmp_dir = os.path.join(self.dest_dir,
-                str(molecule.utils.get_random_number()))
-            if not os.path.lexists(tmp_dir):
-                break
-
-        os.makedirs(tmp_dir)
-        tmp_exec = os.path.join(tmp_dir, "inner_exec")
-        shutil.copy2(exec_script[0], tmp_exec)
-        os.chmod(tmp_exec, 0755)
-        dest_exec = tmp_exec[len(self.dest_dir):]
-        if not dest_exec.startswith("/"):
-            dest_exec = "/%s" % (dest_exec,)
-
-        rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
-            self.dest_dir, self.metadata.get('prechroot',[]))
-        os.remove(tmp_exec)
-        os.rmdir(tmp_dir)
-
-        if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("inner chroot hook failed"),rc,
-                )
-            )
-        return rc
-
     def run(self):
 
         self.Output.updateProgress("[%s|%s] %s" % (
@@ -310,7 +331,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         exec_script = self.metadata.get('inner_chroot_script')
         if exec_script:
             if os.path.isfile(exec_script[0]) and os.access(exec_script[0], os.R_OK):
-                rc = self._exec_inner_script(exec_script)
+                rc = self._exec_inner_script(exec_script, self.dest_dir)
                 if rc != 0:
                     return rc
 
@@ -624,6 +645,10 @@ class LivecdSpec(GenericSpec):
             },
             'outer_chroot_script': {
                 'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
+            },
+            'inner_source_chroot_script': {
+                'cb': self.valid_path_string_first_list_item,
                 've': self.ve_string_splitter,
             },
             'inner_chroot_script': {
