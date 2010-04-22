@@ -386,7 +386,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
 
     def kill(self, success = True):
         if not success:
-            self._run_error_script(self.source_dir, self.dest_dir,
+            self._run_error_script(None, self.source_chroot,
                 self.dest_root)
         self.Output.updateProgress("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
