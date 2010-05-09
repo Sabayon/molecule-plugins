@@ -261,7 +261,7 @@ class ChrootHandler(BuiltinChrootHandler):
         if exec_script:
             if os.path.isfile(exec_script[0]) and \
                 os.access(exec_script[0], os.R_OK):
-                rc = self._exec_inner_script(exec_script)
+                rc = self._exec_inner_script(exec_script, self.source_dir)
                 if rc != 0:
                     return rc
 
