@@ -288,8 +288,10 @@ class IsoHandler(BuiltinIsoHandler):
     def setup(self):
         # cdroot dir
         self.source_path = self.metadata['cdroot_path']
-        self.dest_iso = os.path.join(self.metadata['destination_iso_directory'],
+        dest_iso_filename = self.metadata.get('destination_iso_image_name',
             "remaster_" + os.path.basename(self.metadata['source_iso']))
+        self.dest_iso = os.path.join(self.metadata['destination_iso_directory'],
+            dest_iso_filename)
         self.iso_title = self.metadata.get('iso_title', 'Molecule remaster')
         self.source_chroot = self.metadata['chroot_unpack_path']
         self.chroot_dir = self.source_chroot
