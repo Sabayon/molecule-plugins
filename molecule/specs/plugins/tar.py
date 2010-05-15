@@ -23,14 +23,14 @@ import shutil
 from molecule.i18n import _
 from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
-from molecule.specs.plugins.builtin import BuiltinHandler
+from molecule.specs.plugins.builtin import BuiltinHandlerMixin
 from molecule.specs.plugins.remaster import IsoUnpackHandler, \
     ChrootHandler
 import molecule.utils
 
 SUPPORTED_COMPRESSION_METHODS = ["bz2", "gz"]
 
-class TarHandler(GenericExecutionStep, BuiltinHandler):
+class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     _TAR_EXEC = "/bin/tar"
     _TAR_COMP_METHODS = {
@@ -54,14 +54,14 @@ class TarHandler(GenericExecutionStep, BuiltinHandler):
         self.chroot_path = self.metadata['chroot_unpack_path']
 
     def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("TarHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
 
     def run(self):
-        self.Output.updateProgress("[%s|%s] %s => %s" % (
+        self._output.output("[%s|%s] %s => %s" % (
                 blue("TarHandler"),darkred(self.spec_name),
                 _("compressing chroot"),
                 self.chroot_path,
@@ -81,7 +81,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandler):
         rc = molecule.utils.exec_cmd(args)
         os.chdir(current_dir)
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("TarHandler"), darkred(self.spec_name),
                     _("chroot compression failed"), rc,
                 )
@@ -91,7 +91,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandler):
         return 0
 
     def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("TarHandler"),darkred(self.spec_name),
                 _("executing post_run"),
             )

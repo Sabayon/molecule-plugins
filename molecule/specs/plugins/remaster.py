@@ -27,10 +27,10 @@ from molecule.specs.skel import GenericExecutionStep, GenericSpec
 from molecule.specs.plugins.builtin import ChrootHandler as BuiltinChrootHandler
 from molecule.specs.plugins.builtin import CdrootHandler as BuiltinCdrootHandler
 from molecule.specs.plugins.builtin import IsoHandler as BuiltinIsoHandler
-from molecule.specs.plugins.builtin import BuiltinHandler
+from molecule.specs.plugins.builtin import BuiltinHandlerMixin
 import molecule.utils
 
-class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
+class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -54,7 +54,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
         self.metadata['cdroot_path'] = self.dest_root
 
     def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoUnpackHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
@@ -64,16 +64,16 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
         self.iso_image = self.metadata['source_iso']
 
         # mount
-        mounter = self.metadata.get('iso_mounter', self.Config['iso_mounter'])
+        mounter = self.metadata.get('iso_mounter', self._config['iso_mounter'])
         mount_args = mounter + [self.iso_image, self.tmp_mount]
-        self.Output.updateProgress("[%s|%s] %s: %s" % (
+        self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("spawning"), mount_args,
             )
         )
         rc = molecule.utils.exec_cmd(mount_args)
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoUnpackHandler"), darkred(self.spec_name),
                     _("iso mount failed"), rc,
                 )
@@ -91,18 +91,18 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
 
         # mount squash
         mounter = self.metadata.get('squash_mounter',
-            self.Config['squash_mounter'])
+            self._config['squash_mounter'])
         squash_file = os.path.join(self.tmp_mount,
-            self.Config['chroot_compressor_output_file'])
+            self._config['chroot_compressor_output_file'])
         mount_args = mounter + [squash_file, self.tmp_squash_mount]
-        self.Output.updateProgress("[%s|%s] %s: %s" % (
+        self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("spawning"), mount_args,
             )
         )
         rc = molecule.utils.exec_cmd(mount_args)
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoUnpackHandler"), darkred(self.spec_name),
                     _("squash mount failed"), rc,
                 )
@@ -114,7 +114,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
 
     def run(self):
 
-        self.Output.updateProgress("[%s|%s] %s: %s => %s" % (
+        self._output.output("[%s|%s] %s: %s => %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("iso unpacker running"), self.tmp_squash_mount,
                 self.metadata['chroot_unpack_path'],
@@ -138,7 +138,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
         return rc
 
     def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoUnpackHandler"),darkred(self.spec_name),
                 _("executing post_run"),
             )
@@ -146,7 +146,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
         return 0
 
     def kill(self, success = True):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoUnpackHandler"),darkred(self.spec_name),
                 _("executing kill"),
             )
@@ -158,7 +158,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
         rc = 0
         if self.squash_mounted:
             umounter = self.metadata.get('squash_umounter',
-                self.Config['squash_umounter'])
+                self._config['squash_umounter'])
             args = umounter + [self.tmp_squash_mount]
             rc = molecule.utils.exec_cmd(args)
 
@@ -171,7 +171,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandler):
         rc = 0
         if self.iso_mounted:
             umounter = self.metadata.get('iso_umounter',
-                self.Config['iso_umounter'])
+                self._config['iso_umounter'])
             args = umounter + [self.tmp_mount]
             rc = molecule.utils.exec_cmd(args)
 
@@ -216,7 +216,7 @@ class ChrootHandler(BuiltinChrootHandler):
             do_update = self.metadata.get('execute_repositories_update', 'no')
             if do_update == 'yes':
                 update_cmd = self.metadata.get('repositories_update_cmd',
-                    self.Config['pkgs_updater'])
+                    self._config['pkgs_updater'])
                 rc = molecule.utils.exec_chroot_cmd(update_cmd,
                     self.source_dir,
                     self.metadata.get('prechroot',[]))
@@ -227,7 +227,7 @@ class ChrootHandler(BuiltinChrootHandler):
         if rc != 0:
             return rc
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("hooks running"),
             )
@@ -237,7 +237,7 @@ class ChrootHandler(BuiltinChrootHandler):
         if packages_to_add:
 
             add_cmd = self.metadata.get('custom_packages_add_cmd',
-                self.Config['pkgs_adder'])
+                self._config['pkgs_adder'])
             args = add_cmd + packages_to_add
             rc = molecule.utils.exec_chroot_cmd(args,
                 self.source_dir,
@@ -248,7 +248,7 @@ class ChrootHandler(BuiltinChrootHandler):
         packages_to_remove = self.metadata.get('packages_to_remove', [])
         if packages_to_remove:
             rm_cmd = self.metadata.get('custom_packages_remove_cmd',
-                self.Config['pkgs_remover'])
+                self._config['pkgs_remover'])
             args = rm_cmd + packages_to_remove
             rc = molecule.utils.exec_chroot_cmd(args,
                 self.source_dir,
