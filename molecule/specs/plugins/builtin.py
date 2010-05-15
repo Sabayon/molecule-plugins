@@ -24,7 +24,7 @@ from molecule.output import red, brown, blue, green, purple, darkgreen, \
 import molecule.utils
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
 
-class BuiltinHandler:
+class BuiltinHandlerMixin:
     """
     This class contains code in common between built-in handler classes.
     """
@@ -37,7 +37,7 @@ class BuiltinHandler:
                 os.environ['CHROOT_DIR'] = chroot_dir
             if cdroot_dir:
                 os.environ['CDROOT_DIR'] = cdroot_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("BuiltinHandler"),darkred(self.spec_name),
                     _("spawning"), error_script,
                 )
@@ -71,14 +71,14 @@ class BuiltinHandler:
         os.rmdir(tmp_dir)
 
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("BuiltinHandler"),darkred(self.spec_name),
                     _("inner chroot hook failed"),rc,
                 )
             )
         return rc
 
-class MirrorHandler(GenericExecutionStep, BuiltinHandler):
+class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -94,7 +94,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
             os.makedirs(self.dest_dir,0755)
 
     def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
@@ -106,7 +106,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
                 os.access(exec_script[0], os.R_OK):
                 rc = self._exec_inner_script(exec_script, self.source_dir)
                 if rc != 0:
-                    self.Output.updateProgress("[%s|%s] %s: %s" % (
+                    self._output.output("[%s|%s] %s: %s" % (
                             blue("MirrorHandler"), darkred(self.spec_name),
                             _("inner_source_chroot_script failed"), rc,
                         )
@@ -114,7 +114,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
                     return rc
 
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("pre_run completed successfully"),
             )
@@ -123,7 +123,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
         return 0
 
     def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("executing post_run"),
             )
@@ -133,7 +133,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
     def kill(self, success = True):
         if not success:
             self._run_error_script(self.source_dir, self.dest_dir, None)
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("executing kill"),
             )
@@ -142,38 +142,38 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandler):
 
     def run(self):
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("mirroring running"),
             )
         )
         # running sync
-        args = [self.Config['mirror_syncer']]
-        args.extend(self.Config['mirror_syncer_builtin_args'])
+        args = [self._config['mirror_syncer']]
+        args.extend(self._config['mirror_syncer_builtin_args'])
         args.extend(self.metadata.get('extra_rsync_parameters',[]))
         args.extend([self.source_dir+"/*",self.dest_dir])
-        self.Output.updateProgress("[%s|%s] %s: %s" % (
+        self._output.output("[%s|%s] %s: %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("spawning"),args,
             )
         )
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("MirrorHandler"),darkred(self.spec_name),
                     _("mirroring failed"),rc,
                 )
             )
             return rc
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"),darkred(self.spec_name),
                 _("mirroring completed successfully"),
             )
         )
         return 0
 
-class ChrootHandler(GenericExecutionStep, BuiltinHandler):
+class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -186,7 +186,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         )
 
     def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
@@ -196,14 +196,14 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         exec_script = self.metadata.get('outer_chroot_script')
         if exec_script:
             os.environ['CHROOT_DIR'] = self.source_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
                         _("outer chroot hook failed"),rc,
                     )
@@ -213,7 +213,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         return 0
 
     def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("executing post_run"),
             )
@@ -223,7 +223,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         empty_paths = self.metadata.get('paths_to_empty',[])
         for mypath in empty_paths:
             mypath = self.dest_dir+mypath
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"),darkred(self.spec_name),
                     _("emptying dir"),mypath,
                 )
@@ -244,14 +244,14 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
 
         for mypath in remove_paths:
             mypath = self.dest_dir+mypath
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"),darkred(self.spec_name),
                     _("removing dir"),mypath,
                 )
             )
             rc = molecule.utils.remove_path_sandbox(mypath, sb_env)
             if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s: %s" % (
+                self._output.output("[%s|%s] %s: %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
                         _("removal failed for"),mypath,rc,
                     )
@@ -264,7 +264,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
             if release_file[0] == os.sep: release_file = release_file[len(os.sep):]
             release_file = os.path.join(self.dest_dir,release_file)
             if os.path.lexists(release_file) and not os.path.isfile(release_file):
-                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
                         _("release file creation failed, not a file"),
                         release_file,
@@ -281,7 +281,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
                 f.flush()
                 f.close()
             except (IOError,OSError,), e:
-                self.Output.updateProgress("[%s|%s] %s: %s: %s" % (
+                self._output.output("[%s|%s] %s: %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
                         _("release file creation failed, system error"),
                         release_file,e,
@@ -293,14 +293,14 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
         exec_script = self.metadata.get('outer_chroot_script_after')
         if exec_script:
             os.environ['CHROOT_DIR'] = self.source_dir
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"),darkred(self.spec_name),
                         _("outer chroot hook (after inner) failed"),rc,
                     )
@@ -312,7 +312,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
     def kill(self, success = True):
         if not success:
             self._run_error_script(self.source_dir, self.dest_dir, None)
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),
                 darkred(self.spec_name),_("executing kill"),
             )
@@ -321,7 +321,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
 
     def run(self):
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("hooks running"),
             )
@@ -336,14 +336,14 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandler):
                     return rc
 
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),darkred(self.spec_name),
                 _("hooks completed succesfully"),
             )
         )
         return 0
 
-class CdrootHandler(GenericExecutionStep, BuiltinHandler):
+class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -363,13 +363,13 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
             os.makedirs(self.dest_root, 0755)
 
     def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("preparing environment"),
             )
@@ -377,7 +377,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
         return 0
 
     def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("executing post_run"),
             )
@@ -388,7 +388,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
         if not success:
             self._run_error_script(None, self.source_chroot,
                 self.dest_root)
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("executing kill"),
             )
@@ -397,33 +397,33 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
 
     def run(self):
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("compressing chroot"),
             )
         )
-        args = [self.Config['chroot_compressor']]
-        comp_output = self.Config['chroot_compressor_output_file']
+        args = [self._config['chroot_compressor']]
+        comp_output = self._config['chroot_compressor_output_file']
         if "chroot_compressor_output_file" in self.metadata:
             comp_output = self.metadata.get('chroot_compressor_output_file')
         comp_output = os.path.join(self.dest_root, comp_output)
         args.extend([self.source_chroot,comp_output])
-        args.extend(self.Config['chroot_compressor_builtin_args'])
+        args.extend(self._config['chroot_compressor_builtin_args'])
         args.extend(self.metadata.get('extra_mksquashfs_parameters',[]))
-        self.Output.updateProgress("[%s|%s] %s: %s" % (
+        self._output.output("[%s|%s] %s: %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("spawning"),args,
             )
         )
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("CdrootHandler"),darkred(self.spec_name),
                     _("chroot compression failed"),rc,
                 )
             )
             return rc
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"),darkred(self.spec_name),
                 _("chroot compressed successfully"),
             )
@@ -433,7 +433,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
         merge_dir = self.metadata.get('merge_livecd_root')
         if merge_dir:
             if os.path.isdir(merge_dir):
-                self.Output.updateProgress("[%s|%s] %s %s" % (
+                self._output.output("[%s|%s] %s %s" % (
                     blue("CdrootHandler"),darkred(self.spec_name),
                     _("merging livecd root"),merge_dir,)
                 )
@@ -462,7 +462,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandler):
 
         return 0
 
-class IsoHandler(GenericExecutionStep, BuiltinHandler):
+class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -495,7 +495,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandler):
         )
 
     def pre_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("executing pre_run"),
             )
@@ -503,7 +503,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandler):
         return 0
 
     def post_run(self):
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("executing post_run"),
             )
@@ -514,7 +514,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandler):
         if not success:
             self._run_error_script(self.source_chroot, self.chroot_dir,
                 self.source_path)
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("executing kill"),
             )
@@ -529,53 +529,53 @@ class IsoHandler(GenericExecutionStep, BuiltinHandler):
             os.environ['SOURCE_CHROOT_DIR'] = self.source_chroot
             os.environ['CHROOT_DIR'] = self.chroot_dir
             os.environ['CDROOT_DIR'] = self.source_path
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"),darkred(self.spec_name),
                     _("spawning"),exec_script,
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
-                self.Output.updateProgress("[%s|%s] %s: %s" % (
+                self._output.output("[%s|%s] %s: %s" % (
                         blue("IsoHandler"),darkred(self.spec_name),
                         _("outer chroot hook failed"),rc,
                     )
                 )
                 return rc
 
-        self.Output.updateProgress("[%s|%s] %s" % (
+        self._output.output("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("building ISO image"),
             )
         )
 
-        args = [self.Config['iso_builder']]
-        args.extend(self.Config['iso_builder_builtin_args'])
+        args = [self._config['iso_builder']]
+        args.extend(self._config['iso_builder_builtin_args'])
         args.extend(self.metadata.get('extra_mkisofs_parameters',[]))
         if self.iso_title.strip():
             args.extend(["-V", '"', self.iso_title[:30], '"'])
         args.extend(['-o',self.dest_iso, self.source_path])
-        self.Output.updateProgress("[%s|%s] %s: %s" % (
+        self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoHandler"), darkred(self.spec_name),
                 _("spawning"), args,
             )
         )
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"),darkred(self.spec_name),
                     _("ISO image build failed"),rc,
                 )
             )
             return rc
 
-        self.Output.updateProgress("[%s|%s] %s: %s" % (
+        self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
                 _("built ISO image"),self.dest_iso,
             )
         )
         if os.path.isfile(self.dest_iso) and os.access(self.dest_iso,os.R_OK):
-            self.Output.updateProgress("[%s|%s] %s: %s" % (
+            self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"),darkred(self.spec_name),
                     _("generating md5 for"),self.dest_iso,
                 )
