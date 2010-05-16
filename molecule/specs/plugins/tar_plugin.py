@@ -23,8 +23,8 @@ import shutil
 from molecule.i18n import _
 from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
-from molecule.specs.plugins.builtin import BuiltinHandlerMixin
-from molecule.specs.plugins.remaster import IsoUnpackHandler, \
+from molecule.specs.plugins.builtin_plugin import BuiltinHandlerMixin
+from molecule.specs.plugins.remaster_plugin import IsoUnpackHandler, \
     ChrootHandler
 import molecule.utils
 
@@ -107,6 +107,8 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         return 0
 
 class IsoToTarSpec(GenericSpec):
+
+    PLUGIN_API_VERSION = 0
 
     @staticmethod
     def execution_strategy():
