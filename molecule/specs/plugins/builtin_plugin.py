@@ -589,6 +589,8 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 class LivecdSpec(GenericSpec):
 
+    PLUGIN_API_VERSION = 0
+
     @staticmethod
     def execution_strategy():
         return "livecd"
