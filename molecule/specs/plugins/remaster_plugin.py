@@ -301,11 +301,10 @@ class IsoHandler(BuiltinIsoHandler):
 
     def kill(self, success = True):
         BuiltinIsoHandler.kill(self, success = success)
-        if not success:
-            try:
-                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
-            except (shutil.Error, OSError,):
-                pass
+        try:
+            shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+        except (shutil.Error, OSError,):
+            pass
         return 0
 
 
