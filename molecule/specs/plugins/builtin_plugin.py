@@ -18,6 +18,7 @@
 
 import os
 import shutil
+import shlex
 from molecule.i18n import _
 from molecule.output import red, brown, blue, green, purple, darkgreen, \
     darkred, bold, darkblue, readtext
@@ -553,13 +554,15 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args.extend(self._config['iso_builder_builtin_args'])
         args.extend(self.metadata.get('extra_mkisofs_parameters',[]))
         if self.iso_title.strip():
-            args.extend(["-V", '"', self.iso_title[:30], '"'])
-        args.extend(['-o',self.dest_iso, self.source_path])
+            args.extend(["-V", '"'+self.iso_title[:30]+'"'])
+        args.extend(['-o', self.dest_iso, self.source_path])
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoHandler"), darkred(self.spec_name),
                 _("spawning"), args,
             )
         )
+        # make shell interpreter happy
+        args = shlex.split(' '.join(args))
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
