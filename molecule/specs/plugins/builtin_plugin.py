@@ -465,6 +465,8 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
+    MD5_EXT = ".md5"
+
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
@@ -501,6 +503,27 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 _("executing pre_run"),
             )
         )
+
+        # run pre iso script
+        exec_script = self.metadata.get('pre_iso_script')
+        if exec_script:
+            os.environ['SOURCE_CHROOT_DIR'] = self.source_chroot
+            os.environ['CHROOT_DIR'] = self.chroot_dir
+            os.environ['CDROOT_DIR'] = self.source_path
+            self._output.output("[%s|%s] %s: %s" % (
+                    blue("IsoHandler"), darkred(self.spec_name),
+                    _("spawning"), exec_script,
+                )
+            )
+            rc = molecule.utils.exec_cmd(exec_script)
+            if rc != 0:
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("IsoHandler"), darkred(self.spec_name),
+                        _("pre iso hook failed"), rc,
+                    )
+                )
+                return rc
+
         return 0
 
     def post_run(self):
@@ -509,6 +532,26 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 _("executing post_run"),
             )
         )
+
+        # run pre iso script
+        exec_script = self.metadata.get('post_iso_script')
+        if exec_script:
+            os.environ['ISO_PATH'] = self.dest_iso
+            os.environ['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
+            self._output.output("[%s|%s] %s: %s" % (
+                    blue("IsoHandler"), darkred(self.spec_name),
+                    _("spawning"), exec_script,
+                )
+            )
+            rc = molecule.utils.exec_cmd(exec_script)
+            if rc != 0:
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("IsoHandler"), darkred(self.spec_name),
+                        _("post iso hook failed"), rc,
+                    )
+                )
+                return rc
+
         return 0
 
     def kill(self, success = True):
@@ -523,26 +566,6 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         return 0
 
     def run(self):
-
-        # run outer chroot script
-        exec_script = self.metadata.get('pre_iso_script')
-        if exec_script:
-            os.environ['SOURCE_CHROOT_DIR'] = self.source_chroot
-            os.environ['CHROOT_DIR'] = self.chroot_dir
-            os.environ['CDROOT_DIR'] = self.source_path
-            self._output.output("[%s|%s] %s: %s" % (
-                    blue("IsoHandler"),darkred(self.spec_name),
-                    _("spawning"),exec_script,
-                )
-            )
-            rc = molecule.utils.exec_cmd(exec_script)
-            if rc != 0:
-                self._output.output("[%s|%s] %s: %s" % (
-                        blue("IsoHandler"),darkred(self.spec_name),
-                        _("outer chroot hook failed"),rc,
-                    )
-                )
-                return rc
 
         self._output.output("[%s|%s] %s" % (
                 blue("IsoHandler"),darkred(self.spec_name),
@@ -579,15 +602,16 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         if os.path.isfile(self.dest_iso) and os.access(self.dest_iso,os.R_OK):
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("IsoHandler"),darkred(self.spec_name),
-                    _("generating md5 for"),self.dest_iso,
+                    blue("IsoHandler"), darkred(self.spec_name),
+                    _("generating md5 for"), self.dest_iso,
                 )
             )
             digest = molecule.utils.md5sum(self.dest_iso)
-            md5file = self.dest_iso+".md5"
+            md5file = self.dest_iso + IsoHandler.MD5_EXT
             with open(md5file,"w") as f:
                 f.write("%s  %s\n" % (digest,os.path.basename(self.dest_iso),))
                 f.flush()
+
         return 0
 
 class LivecdSpec(GenericSpec):
@@ -681,6 +705,10 @@ class LivecdSpec(GenericSpec):
                 've': self.ve_string_splitter,
             },
             'pre_iso_script': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
+            },
+            'post_iso_script': {
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_string_splitter,
             },

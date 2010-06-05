@@ -60,8 +60,19 @@ merge_livecd_root: /sabayon/boot/standard
 # Extra mkisofs parameters, perhaps something to include/use your bootloader
 extra_mkisofs_parameters: -b isolinux/isolinux.bin -c isolinux/boot.cat
 
-# Pre-ISO building script. Hook to be able to copy kernel images in place, for example
+# Pre-ISO building script. Hook called before making the iso image.
+# environment variables exported:
+# SOURCE_CHROOT_DIR: path pointing to source chroot directory
+# CHROOT_DIR: path pointing to destination chroot directory (chroot being worked
+#    on)
+# CDROOT_DIR: path pointing to CD/DVD root directory (ISO filesystem root)
 pre_iso_script: /sabayon/scripts/cdroot.py
+
+# Post-ISO building script. Hook called after having made the iso image and md5.
+# environment variables exported:
+# ISO_PATH: path to newly created ISO image file
+# ISO_CHECKSUM_PATH: path to newly created ISO image checksum file
+# post_iso_script: /sabayon/scripts/post_iso_script.sh
 
 # Destination directory for the ISO image path
 destination_iso_directory: /sabayon/iso
