@@ -364,6 +364,10 @@ class RemasterSpec(GenericSpec):
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_string_splitter,
             },
+            'post_iso_script': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
+            },
             'destination_iso_directory': {
                 'cb': self.valid_dir,
                 've': self.ve_string_stripper,
