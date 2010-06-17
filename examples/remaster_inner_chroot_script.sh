@@ -1,3 +1,0 @@
-#!/bin/bash
-
-echo "REMASTER INNER CHROOT SCRIPT"

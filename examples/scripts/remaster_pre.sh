@@ -6,5 +6,6 @@ CHROOT_PKGS_DIR="${CHROOT_DIR}/var/lib/entropy/packages"
 [[ ! -d "${CHROOT_PKGS_DIR}" ]] && mkdir -p "${CHROOT_PKGS_DIR}"
 
 echo "Mounting packages over"
-mount --bind "${PKGS_DIR}" "${CHROOT_PKGS_DIR}" || exit 1
-mount --bind "/dev" "${CHROOT_DIR}/dev"
+rm -rf "${CHROOT_PKGS_DIR}"/*
+cp ${PKGS_DIR}/* "${CHROOT_PKGS_DIR}"/ -Ra
+exit 0
