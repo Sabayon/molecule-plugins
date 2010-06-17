@@ -489,7 +489,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 release_version.replace(' ','_'),
                 release_desc.replace(' ','_'),
             )
-        self.dest_iso = os.path.join(dest_iso_dir,dest_iso_filename)
+        self.dest_iso = os.path.join(dest_iso_dir, dest_iso_filename)
         self.iso_title = "%s %s %s" % (release_string, release_version, release_desc,)
         self.source_chroot = self.metadata['source_chroot']
         self.chroot_dir = os.path.join(
@@ -510,6 +510,8 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             os.environ['SOURCE_CHROOT_DIR'] = self.source_chroot
             os.environ['CHROOT_DIR'] = self.chroot_dir
             os.environ['CDROOT_DIR'] = self.source_path
+            os.environ['ISO_PATH'] = self.dest_iso
+            os.environ['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
