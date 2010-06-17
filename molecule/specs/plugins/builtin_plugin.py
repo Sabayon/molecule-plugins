@@ -587,7 +587,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             )
         )
         # make shell interpreter happy
-        args = shlex.split(' '.join(args).encode("utf-8"))
+        args = shlex.split(' '.join(args))
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
