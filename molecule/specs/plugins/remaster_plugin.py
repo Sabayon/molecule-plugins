@@ -58,7 +58,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("IsoUnpackHandler"),darkred(self.spec_name),
+                blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
@@ -142,7 +142,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def post_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("IsoUnpackHandler"),darkred(self.spec_name),
+                blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("executing post_run"),
             )
         )
@@ -150,7 +150,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def kill(self, success = True):
         self._output.output("[%s|%s] %s" % (
-                blue("IsoUnpackHandler"),darkred(self.spec_name),
+                blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("executing kill"),
             )
         )
@@ -222,7 +222,7 @@ class ChrootHandler(BuiltinChrootHandler):
                     self._config['pkgs_updater'])
                 rc = molecule.utils.exec_chroot_cmd(update_cmd,
                     self.source_dir,
-                    self.metadata.get('prechroot',[]))
+                    self.metadata.get('prechroot', []))
                 if rc != 0:
                     return rc
 
@@ -231,7 +231,7 @@ class ChrootHandler(BuiltinChrootHandler):
             return rc
 
         self._output.output("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
+                blue("ChrootHandler"), darkred(self.spec_name),
                 _("hooks running"),
             )
         )
@@ -244,7 +244,7 @@ class ChrootHandler(BuiltinChrootHandler):
             args = add_cmd + packages_to_add
             rc = molecule.utils.exec_chroot_cmd(args,
                 self.source_dir,
-                self.metadata.get('prechroot',[]))
+                self.metadata.get('prechroot', []))
             if rc != 0:
                 return rc
 
@@ -255,7 +255,7 @@ class ChrootHandler(BuiltinChrootHandler):
             args = rm_cmd + packages_to_remove
             rc = molecule.utils.exec_chroot_cmd(args,
                 self.source_dir,
-                self.metadata.get('prechroot',[]))
+                self.metadata.get('prechroot', []))
             if rc != 0:
                 return rc
 

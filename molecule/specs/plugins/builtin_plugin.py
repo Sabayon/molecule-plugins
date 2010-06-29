@@ -18,6 +18,7 @@
 
 import os
 import shutil
+from molecule.compat import get_stringtype
 from molecule.i18n import _
 from molecule.output import red, brown, blue, green, purple, darkgreen, \
     darkred, bold, darkblue, readtext
@@ -38,7 +39,7 @@ class BuiltinHandlerMixin:
             if cdroot_dir:
                 os.environ['CDROOT_DIR'] = cdroot_dir
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("BuiltinHandler"),darkred(self.spec_name),
+                    blue("BuiltinHandler"), darkred(self.spec_name),
                     _("spawning"), error_script,
                 )
             )
@@ -51,7 +52,7 @@ class BuiltinHandlerMixin:
 
     def _exec_inner_script(self, exec_script, dest_chroot):
 
-        while 1:
+        while True:
             tmp_dir = os.path.join(dest_chroot,
                 str(molecule.utils.get_random_number()))
             if not os.path.lexists(tmp_dir):
@@ -60,20 +61,20 @@ class BuiltinHandlerMixin:
         os.makedirs(tmp_dir)
         tmp_exec = os.path.join(tmp_dir, "inner_exec")
         shutil.copy2(exec_script[0], tmp_exec)
-        os.chmod(tmp_exec, 0755)
+        os.chmod(tmp_exec, 0o755)
         dest_exec = tmp_exec[len(dest_chroot):]
         if not dest_exec.startswith("/"):
             dest_exec = "/%s" % (dest_exec,)
 
         rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
-            dest_chroot, self.metadata.get('prechroot',[]))
+            dest_chroot, self.metadata.get('prechroot', []))
         os.remove(tmp_exec)
         os.rmdir(tmp_dir)
 
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("BuiltinHandler"),darkred(self.spec_name),
-                    _("inner chroot hook failed"),rc,
+                    blue("BuiltinHandler"), darkred(self.spec_name),
+                    _("inner chroot hook failed"), rc,
                 )
             )
         return rc
@@ -87,15 +88,15 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # creating destination chroot dir
         self.source_dir = self.metadata['source_chroot']
         self.dest_dir = os.path.join(
-            self.metadata['destination_chroot'],"chroot",
+            self.metadata['destination_chroot'], "chroot",
             os.path.basename(self.source_dir)
         )
         if not os.path.isdir(self.dest_dir):
-            os.makedirs(self.dest_dir,0755)
+            os.makedirs(self.dest_dir, 0o755)
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
+                blue("MirrorHandler"), darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
@@ -115,7 +116,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 
         self._output.output("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
+                blue("MirrorHandler"), darkred(self.spec_name),
                 _("pre_run completed successfully"),
             )
         )
@@ -124,7 +125,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def post_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
+                blue("MirrorHandler"), darkred(self.spec_name),
                 _("executing post_run"),
             )
         )
@@ -134,7 +135,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         if not success:
             self._run_error_script(self.source_dir, self.dest_dir, None)
         self._output.output("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
+                blue("MirrorHandler"), darkred(self.spec_name),
                 _("executing kill"),
             )
         )
@@ -143,31 +144,31 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def run(self):
 
         self._output.output("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
+                blue("MirrorHandler"), darkred(self.spec_name),
                 _("mirroring running"),
             )
         )
         # running sync
         args = [self._config['mirror_syncer']]
         args.extend(self._config['mirror_syncer_builtin_args'])
-        args.extend(self.metadata.get('extra_rsync_parameters',[]))
-        args.extend([self.source_dir+"/*",self.dest_dir])
+        args.extend(self.metadata.get('extra_rsync_parameters', []))
+        args.extend([self.source_dir+"/*", self.dest_dir])
         self._output.output("[%s|%s] %s: %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
-                _("spawning"),args,
+                blue("MirrorHandler"), darkred(self.spec_name),
+                _("spawning"), args,
             )
         )
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("MirrorHandler"),darkred(self.spec_name),
-                    _("mirroring failed"),rc,
+                    blue("MirrorHandler"), darkred(self.spec_name),
+                    _("mirroring failed"), rc,
                 )
             )
             return rc
 
         self._output.output("[%s|%s] %s" % (
-                blue("MirrorHandler"),darkred(self.spec_name),
+                blue("MirrorHandler"), darkred(self.spec_name),
                 _("mirroring completed successfully"),
             )
         )
@@ -187,7 +188,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
+                blue("ChrootHandler"), darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
@@ -204,8 +205,8 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
-                        _("outer chroot hook failed"),rc,
+                        blue("ChrootHandler"), darkred(self.spec_name),
+                        _("outer chroot hook failed"), rc,
                     )
                 )
                 return rc
@@ -214,25 +215,25 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def post_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
+                blue("ChrootHandler"), darkred(self.spec_name),
                 _("executing post_run"),
             )
         )
 
         # now remove paths to empty
-        empty_paths = self.metadata.get('paths_to_empty',[])
+        empty_paths = self.metadata.get('paths_to_empty', [])
         for mypath in empty_paths:
             mypath = self.dest_dir+mypath
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("emptying dir"),mypath,
+                    blue("ChrootHandler"), darkred(self.spec_name),
+                    _("emptying dir"), mypath,
                 )
             )
             if os.path.isdir(mypath):
                 molecule.utils.empty_dir(mypath)
 
         # now remove paths to remove (...)
-        remove_paths = self.metadata.get('paths_to_remove',[])
+        remove_paths = self.metadata.get('paths_to_remove', [])
 
         # setup sandbox
         sb_dirs = [self.dest_dir]
@@ -245,46 +246,47 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         for mypath in remove_paths:
             mypath = self.dest_dir+mypath
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("ChrootHandler"),darkred(self.spec_name),
-                    _("removing dir"),mypath,
+                    blue("ChrootHandler"), darkred(self.spec_name),
+                    _("removing dir"), mypath,
                 )
             )
             rc = molecule.utils.remove_path_sandbox(mypath, sb_env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
-                        _("removal failed for"),mypath,rc,
+                        blue("ChrootHandler"), darkred(self.spec_name),
+                        _("removal failed for"), mypath, rc,
                     )
                 )
                 return rc
 
         # write release file
         release_file = self.metadata.get('release_file')
-        if isinstance(release_file,basestring) and release_file:
-            if release_file[0] == os.sep: release_file = release_file[len(os.sep):]
-            release_file = os.path.join(self.dest_dir,release_file)
+        if isinstance(release_file, get_stringtype()) and release_file:
+            if release_file[0] == os.sep:
+                release_file = release_file[len(os.sep):]
+            release_file = os.path.join(self.dest_dir, release_file)
             if os.path.lexists(release_file) and not os.path.isfile(release_file):
                 self._output.output("[%s|%s] %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
+                        blue("ChrootHandler"), darkred(self.spec_name),
                         _("release file creation failed, not a file"),
                         release_file,
                     )
                 )
                 return 1
-            release_string = self.metadata.get('release_string','')
-            release_version = self.metadata.get('release_version','')
-            release_desc = self.metadata.get('release_desc','')
-            file_string = "%s %s %s\n" % (release_string,release_version,release_desc,)
+            release_string = self.metadata.get('release_string', '')
+            release_version = self.metadata.get('release_version', '')
+            release_desc = self.metadata.get('release_desc', '')
+            file_string = "%s %s %s\n" % (release_string, release_version, release_desc,)
             try:
-                f = open(release_file,"w")
+                f = open(release_file, "w")
                 f.write(file_string)
                 f.flush()
                 f.close()
-            except (IOError,OSError,), e:
+            except (IOError, OSError,) as e:
                 self._output.output("[%s|%s] %s: %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
+                        blue("ChrootHandler"), darkred(self.spec_name),
                         _("release file creation failed, system error"),
-                        release_file,e,
+                        release_file, e,
                     )
                 )
                 return 1
@@ -301,8 +303,8 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             rc = molecule.utils.exec_cmd(exec_script)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
-                        blue("ChrootHandler"),darkred(self.spec_name),
-                        _("outer chroot hook (after inner) failed"),rc,
+                        blue("ChrootHandler"), darkred(self.spec_name),
+                        _("outer chroot hook (after inner) failed"), rc,
                     )
                 )
                 return rc
@@ -314,7 +316,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self._run_error_script(self.source_dir, self.dest_dir, None)
         self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"),
-                darkred(self.spec_name),_("executing kill"),
+                darkred(self.spec_name), _("executing kill"),
             )
         )
         return 0
@@ -322,7 +324,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def run(self):
 
         self._output.output("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
+                blue("ChrootHandler"), darkred(self.spec_name),
                 _("hooks running"),
             )
         )
@@ -337,7 +339,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 
         self._output.output("[%s|%s] %s" % (
-                blue("ChrootHandler"),darkred(self.spec_name),
+                blue("ChrootHandler"), darkred(self.spec_name),
                 _("hooks completed succesfully"),
             )
         )
@@ -350,27 +352,27 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def setup(self):
         self.source_chroot = os.path.join(
-            self.metadata['destination_chroot'],"chroot",
+            self.metadata['destination_chroot'], "chroot",
             os.path.basename(self.metadata['source_chroot'])
         )
         self.dest_root = os.path.join(
-            self.metadata['destination_livecd_root'],"livecd",
+            self.metadata['destination_livecd_root'], "livecd",
             os.path.basename(self.metadata['source_chroot'])
         )
         if os.path.isdir(self.dest_root):
             molecule.utils.empty_dir(self.dest_root)
         if not os.path.isdir(self.dest_root):
-            os.makedirs(self.dest_root, 0755)
+            os.makedirs(self.dest_root, 0o755)
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
+                blue("CdrootHandler"), darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
 
         self._output.output("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
+                blue("CdrootHandler"), darkred(self.spec_name),
                 _("preparing environment"),
             )
         )
@@ -378,7 +380,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def post_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
+                blue("CdrootHandler"), darkred(self.spec_name),
                 _("executing post_run"),
             )
         )
@@ -389,7 +391,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self._run_error_script(None, self.source_chroot,
                 self.dest_root)
         self._output.output("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
+                blue("CdrootHandler"), darkred(self.spec_name),
                 _("executing kill"),
             )
         )
@@ -398,7 +400,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def run(self):
 
         self._output.output("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
+                blue("CdrootHandler"), darkred(self.spec_name),
                 _("compressing chroot"),
             )
         )
@@ -407,24 +409,24 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         if "chroot_compressor_output_file" in self.metadata:
             comp_output = self.metadata.get('chroot_compressor_output_file')
         comp_output = os.path.join(self.dest_root, comp_output)
-        args.extend([self.source_chroot,comp_output])
+        args.extend([self.source_chroot, comp_output])
         args.extend(self._config['chroot_compressor_builtin_args'])
-        args.extend(self.metadata.get('extra_mksquashfs_parameters',[]))
+        args.extend(self.metadata.get('extra_mksquashfs_parameters', []))
         self._output.output("[%s|%s] %s: %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
-                _("spawning"),args,
+                blue("CdrootHandler"), darkred(self.spec_name),
+                _("spawning"), args,
             )
         )
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("CdrootHandler"),darkred(self.spec_name),
-                    _("chroot compression failed"),rc,
+                    blue("CdrootHandler"), darkred(self.spec_name),
+                    _("chroot compression failed"), rc,
                 )
             )
             return rc
         self._output.output("[%s|%s] %s" % (
-                blue("CdrootHandler"),darkred(self.spec_name),
+                blue("CdrootHandler"), darkred(self.spec_name),
                 _("chroot compressed successfully"),
             )
         )
@@ -434,31 +436,31 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         if merge_dir:
             if os.path.isdir(merge_dir):
                 self._output.output("[%s|%s] %s %s" % (
-                    blue("CdrootHandler"),darkred(self.spec_name),
-                    _("merging livecd root"),merge_dir,)
+                    blue("CdrootHandler"), darkred(self.spec_name),
+                    _("merging livecd root"), merge_dir,)
                 )
                 import stat
                 content = os.listdir(merge_dir)
                 for mypath in content:
-                    mysource = os.path.join(merge_dir,mypath)
-                    mydest = os.path.join(self.dest_root,mypath)
+                    mysource = os.path.join(merge_dir, mypath)
+                    mydest = os.path.join(self.dest_root, mypath)
                     copystat = False
 
                     if os.path.islink(mysource):
                         tolink = os.readlink(mysource)
-                        os.symlink(tolink,mydest)
+                        os.symlink(tolink, mydest)
                     elif os.path.isfile(mysource) or os.path.islink(mysource):
                         copystat = True
-                        shutil.copy2(mysource,mydest)
+                        shutil.copy2(mysource, mydest)
                     elif os.path.isdir(mysource):
                         copystat = True
-                        shutil.copytree(mysource,mydest)
+                        shutil.copytree(mysource, mydest)
 
                     if copystat:
                         user = os.stat(mysource)[stat.ST_UID]
                         group = os.stat(mysource)[stat.ST_GID]
-                        os.chown(mydest,user,group)
-                        shutil.copystat(mysource,mydest)
+                        os.chown(mydest, user, group)
+                        shutil.copystat(mysource, mydest)
 
         return 0
 
@@ -472,33 +474,33 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def setup(self):
         # setup paths
         self.source_path = os.path.join(
-            self.metadata['destination_livecd_root'],"livecd",
+            self.metadata['destination_livecd_root'], "livecd",
             os.path.basename(self.metadata['source_chroot'])
         )
         dest_iso_dir = self.metadata['destination_iso_directory']
         if not os.path.isdir(dest_iso_dir):
-            os.makedirs(dest_iso_dir,0755)
+            os.makedirs(dest_iso_dir, 0o755)
         dest_iso_filename = self.metadata.get('destination_iso_image_name')
-        release_string = self.metadata.get('release_string','')
-        release_version = self.metadata.get('release_version','')
-        release_desc = self.metadata.get('release_desc','')
+        release_string = self.metadata.get('release_string', '')
+        release_version = self.metadata.get('release_version', '')
+        release_desc = self.metadata.get('release_desc', '')
         if not dest_iso_filename:
             dest_iso_filename = "%s_%s_%s.iso" % (
-                release_string.replace(' ','_'),
-                release_version.replace(' ','_'),
-                release_desc.replace(' ','_'),
+                release_string.replace(' ', '_'),
+                release_version.replace(' ', '_'),
+                release_desc.replace(' ', '_'),
             )
         self.dest_iso = os.path.join(dest_iso_dir, dest_iso_filename)
         self.iso_title = "%s %s %s" % (release_string, release_version, release_desc,)
         self.source_chroot = self.metadata['source_chroot']
         self.chroot_dir = os.path.join(
-            self.metadata['destination_chroot'],"chroot",
+            self.metadata['destination_chroot'], "chroot",
             os.path.basename(self.source_chroot)
         )
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
+                blue("IsoHandler"), darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
@@ -529,7 +531,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def post_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
+                blue("IsoHandler"), darkred(self.spec_name),
                 _("executing post_run"),
             )
         )
@@ -560,7 +562,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self._run_error_script(self.source_chroot, self.chroot_dir,
                 self.source_path)
         self._output.output("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
+                blue("IsoHandler"), darkred(self.spec_name),
                 _("executing kill"),
             )
         )
@@ -569,17 +571,17 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def run(self):
 
         self._output.output("[%s|%s] %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
+                blue("IsoHandler"), darkred(self.spec_name),
                 _("building ISO image"),
             )
         )
 
         args = [self._config['iso_builder']]
         args.extend(self._config['iso_builder_builtin_args'])
-        args.extend(self.metadata.get('extra_mkisofs_parameters',[]))
+        args.extend(self.metadata.get('extra_mkisofs_parameters', []))
         if self.iso_title.strip():
             args.extend(["-V", '"', self.iso_title[:30], '"'])
-        args.extend(['-o',self.dest_iso, self.source_path])
+        args.extend(['-o', self.dest_iso, self.source_path])
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoHandler"), darkred(self.spec_name),
                 _("spawning"), args,
@@ -588,18 +590,18 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
-                    blue("IsoHandler"),darkred(self.spec_name),
-                    _("ISO image build failed"),rc,
+                    blue("IsoHandler"), darkred(self.spec_name),
+                    _("ISO image build failed"), rc,
                 )
             )
             return rc
 
         self._output.output("[%s|%s] %s: %s" % (
-                blue("IsoHandler"),darkred(self.spec_name),
-                _("built ISO image"),self.dest_iso,
+                blue("IsoHandler"), darkred(self.spec_name),
+                _("built ISO image"), self.dest_iso,
             )
         )
-        if os.path.isfile(self.dest_iso) and os.access(self.dest_iso,os.R_OK):
+        if os.path.isfile(self.dest_iso) and os.access(self.dest_iso, os.R_OK):
             self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"), darkred(self.spec_name),
                     _("generating md5 for"), self.dest_iso,
@@ -607,8 +609,8 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             )
             digest = molecule.utils.md5sum(self.dest_iso)
             md5file = self.dest_iso + IsoHandler.MD5_EXT
-            with open(md5file,"w") as f:
-                f.write("%s  %s\n" % (digest,os.path.basename(self.dest_iso),))
+            with open(md5file, "w") as f:
+                f.write("%s  %s\n" % (digest, os.path.basename(self.dest_iso),))
                 f.flush()
 
         return 0

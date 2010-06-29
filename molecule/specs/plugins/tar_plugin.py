@@ -55,14 +55,14 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("TarHandler"),darkred(self.spec_name),
+                blue("TarHandler"), darkred(self.spec_name),
                 _("executing pre_run"),
             )
         )
 
     def run(self):
         self._output.output("[%s|%s] %s => %s" % (
-                blue("TarHandler"),darkred(self.spec_name),
+                blue("TarHandler"), darkred(self.spec_name),
                 _("compressing chroot"),
                 self.chroot_path,
             )
@@ -70,7 +70,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         dest_path_dir = os.path.dirname(self.dest_path)
         if not os.path.isdir(dest_path_dir) and not \
             os.path.lexists(dest_path_dir):
-            os.makedirs(dest_path_dir, 0755)
+            os.makedirs(dest_path_dir, 0o755)
 
         current_dir = os.getcwd()
         # change dir to chroot dir
@@ -92,7 +92,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def post_run(self):
         self._output.output("[%s|%s] %s" % (
-                blue("TarHandler"),darkred(self.spec_name),
+                blue("TarHandler"), darkred(self.spec_name),
                 _("executing post_run"),
             )
         )
