@@ -15,6 +15,18 @@ prechroot: linux32
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso_images/Sabayon_5.0_G.iso
 
+# Release Version
+# release_version: 5.0
+
+# Release Version string description
+# release_desc: amd64 GAMING
+
+# Release string
+# release_string: Sabayon Linux
+
+# Release file (inside chroot)
+# release_file: /etc/sabayon-edition
+
 # Error script command, executed when something went wrong and molecule has to terminate the execution
 # environment variables exported:
 # - CHROOT_DIR: path to chroot directory, if any

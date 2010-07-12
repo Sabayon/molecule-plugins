@@ -1,11 +1,15 @@
 # use abs path, otherwise daily iso build automagic won't work
 %import /sabayon/molecules/corecdx.common
 
-release_desc: x86 CoreCDX
-
 # pre chroot command, example, for 32bit chroots on 64bit system, you always
 # have to append "linux32" this is useful for inner_chroot_script
 prechroot: linux32
+
+# Release Version
+release_version: 5.4
+
+# Release Version string description
+release_desc: x86 CoreCDX
 
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso/Sabayon_Linux_SpinBase_DAILY_x86.iso

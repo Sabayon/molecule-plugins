@@ -4,6 +4,12 @@
 # 32bit chroot
 prechroot: linux32
 
+# Release Version
+release_version: 5.4
+
+# Release Version string description
+release_desc: x86 XFCE
+
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso/Sabayon_Linux_SpinBase_DAILY_x86.iso
 
