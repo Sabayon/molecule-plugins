@@ -328,6 +328,22 @@ class RemasterSpec(GenericSpec):
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_string_splitter,
             },
+            'release_string': {
+                'cb': self.ne_string, # validation callback
+                've': self.ve_string_stripper, # value extractor
+            },
+            'release_version': {
+                'cb': self.ne_string,
+                've': self.ve_string_stripper,
+            },
+            'release_desc': {
+                'cb': self.ne_string,
+                've': self.ve_string_stripper,
+            },
+            'release_file': {
+                'cb': self.ne_string,
+                've': self.ve_string_stripper,
+            },
             'source_iso': {
                 'cb': self.valid_path_string,
                 've': self.ve_string_stripper,
