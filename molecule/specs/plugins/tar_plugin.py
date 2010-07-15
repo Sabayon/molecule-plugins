@@ -47,10 +47,11 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def setup(self):
         # setup compression method, default is gz
-        self.dest_path = os.path.join(
-            self.metadata['destination_tar_directory'],
+        tar_name = self.metadata.get('tar_name',
             os.path.basename(self.metadata['source_iso']) + ".tar." + \
             self.metadata.get('compression_method', "gz"))
+        self.dest_path = os.path.join(
+            self.metadata['destination_tar_directory'], tar_name)
         self.chroot_path = self.metadata['chroot_unpack_path']
 
     def pre_run(self):
@@ -192,10 +193,6 @@ class IsoToTarSpec(GenericSpec):
             'squash_umounter': {
                 'cb': self.ne_list,
                 've': self.ve_string_splitter,
-            },
-            'merge_livecd_root': {
-                'cb': self.valid_dir,
-                've': self.ve_string_stripper,
             },
             'custom_packages_remove_cmd': {
                 'cb': self.valid_ascii,
