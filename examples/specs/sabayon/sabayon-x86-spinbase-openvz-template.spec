@@ -7,4 +7,4 @@ prechroot: linux32
 
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso/Sabayon_Linux_SpinBase_DAILY_x86.iso
-tar_name: Sabayon_Linux_SpinBase_DAILY_x86_openvz.tar.gz
+tar_name: Sabayon_Linux_SpinBase_5.3_x86_openvz.tar.gz

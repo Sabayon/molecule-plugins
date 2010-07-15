@@ -7,4 +7,4 @@
 
 # Path to source ISO file (MANDATORY)
 source_iso: /sabayon/iso/Sabayon_Linux_SpinBase_DAILY_amd64.iso
-tar_name: Sabayon_Linux_SpinBase_DAILY_amd64_openvz.tar.gz
+tar_name: Sabayon_Linux_SpinBase_5.3_amd64_openvz.tar.gz
