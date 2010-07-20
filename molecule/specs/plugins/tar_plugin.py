@@ -170,6 +170,10 @@ class IsoToTarSpec(GenericSpec):
                 'cb': self.valid_path_string_first_list_item,
                 've': self.ve_string_splitter,
             },
+            'inner_chroot_script_after': {
+                'cb': self.valid_path_string_first_list_item,
+                've': self.ve_string_splitter,
+            },
             'outer_chroot_script_after': {
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_string_splitter,
