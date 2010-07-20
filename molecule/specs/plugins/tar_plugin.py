@@ -37,6 +37,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         "gz": "z",
         "bz2": "j",
     }
+    MD5_EXT = ".md5"
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
@@ -88,6 +89,16 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 )
             )
             return rc
+        self._output.output("[%s|%s] %s: %s" % (
+                blue("TarHandler"), darkred(self.spec_name),
+                _("generating md5 for"), self.dest_path,
+            )
+        )
+        digest = molecule.utils.md5sum(self.dest_path)
+        md5file = self.dest_path + TarHandler.MD5_EXT
+        with open(md5file, "w") as f:
+            f.write("%s  %s\n" % (digest, os.path.basename(self.dest_path),))
+            f.flush()
 
         return 0
 
