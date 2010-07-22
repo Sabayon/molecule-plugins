@@ -17,6 +17,6 @@ export FORCE_EAPI=2
 equo update || ( sleep 1200 && equo update ) || exit 1
 equo upgrade || exit 1
 echo "-5" | equo conf update
-rm -rf /var/lib/entropy/packages*
+rm -rf /var/lib/entropy/client/packages
 
 equo query list installed -qv > /etc/sabayon-pkglist
