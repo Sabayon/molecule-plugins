@@ -17,7 +17,6 @@
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-import tempfile
 import shutil
 
 from molecule.i18n import _
@@ -61,6 +60,29 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 _("executing pre_run"),
             )
         )
+
+        # run pre tar script
+        exec_script = self.metadata.get('pre_tar_script')
+        if exec_script:
+            os.environ['CHROOT_DIR'] = self.chroot_path
+            os.environ['TAR_PATH'] = self.dest_path
+            os.environ['TAR_CHECKSUM_PATH'] = self.dest_path + \
+                TarHandler.MD5_EXT
+            self._output.output("[%s|%s] %s: %s" % (
+                    blue("TarHandler"), darkred(self.spec_name),
+                    _("spawning"), exec_script,
+                )
+            )
+            rc = molecule.utils.exec_cmd(exec_script)
+            if rc != 0:
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("TarHandler"), darkred(self.spec_name),
+                        _("pre tar hook failed"), rc,
+                    )
+                )
+                return rc
+
+        return 0
 
     def run(self):
         self._output.output("[%s|%s] %s => %s" % (
@@ -108,6 +130,29 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 _("executing post_run"),
             )
         )
+
+        # run post tar script
+        exec_script = self.metadata.get('post_tar_script')
+        if exec_script:
+            os.environ['CHROOT_DIR'] = self.chroot_path
+            os.environ['TAR_PATH'] = self.dest_path
+            os.environ['TAR_CHECKSUM_PATH'] = self.dest_path + \
+                TarHandler.MD5_EXT
+            self._output.output("[%s|%s] %s: %s" % (
+                    blue("TarHandler"), darkred(self.spec_name),
+                    _("spawning"), exec_script,
+                )
+            )
+            rc = molecule.utils.exec_cmd(exec_script)
+            if rc != 0:
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("TarHandler"), darkred(self.spec_name),
+                        _("post tar hook failed"), rc,
+                    )
+                )
+                return rc
+
+        return 0
 
     def kill(self, success = True):
         if not success:
@@ -192,6 +237,14 @@ class IsoToTarSpec(GenericSpec):
             'destination_tar_directory': {
                 'cb': self.valid_dir,
                 've': self.ve_string_stripper,
+            },
+            'pre_tar_script': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
+            },
+            'post_tar_script': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_string_splitter,
             },
             'iso_mounter': {
                 'cb': self.ne_list,
