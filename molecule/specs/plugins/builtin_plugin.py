@@ -532,7 +532,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             )
         )
 
-        # run pre iso script
+        # run post iso script
         exec_script = self.metadata.get('post_iso_script')
         if exec_script:
             os.environ['ISO_PATH'] = self.dest_iso
