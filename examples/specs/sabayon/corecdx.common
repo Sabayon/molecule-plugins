@@ -26,8 +26,20 @@ outer_chroot_script_after: /sabayon/scripts/remaster_post.sh
 # Extra mkisofs parameters, perhaps something to include/use your bootloader
 extra_mkisofs_parameters: -b isolinux/isolinux.bin -c isolinux/boot.cat
 
-# Pre-ISO building script. Hook to be able to copy kernel images in place, for example
+# Pre-ISO building script. Hook called before ISO image creation
+# Variables exported:
+# SOURCE_CHROOT_DIR = path pointing to the initial chroot
+# CHROOT_DIR = path pointing to the working chroot (the one that gets modified)
+# CDROOT_DIR = path pointing to the root of the CD image being created
+# ISO_PATH = path pointing to the destination ISO
+# ISO_CHECKSUM_PATH = path pointing to the destination iso checksum (md5)
 pre_iso_script: /sabayon/scripts/corecdx_pre_iso_script.sh
+
+# Post-ISO building script. Hook called after ISO image creation
+# Variables exported:
+# ISO_PATH = path pointing to the destination ISO
+# ISO_CHECKSUM_PATH = path pointing to the destination iso checksum (md5)
+# post_iso_script: /sabayon/scripts/post_iso_script.sh
 
 # Destination directory for the ISO image path (MANDATORY)
 destination_iso_directory: /sabayon/iso
