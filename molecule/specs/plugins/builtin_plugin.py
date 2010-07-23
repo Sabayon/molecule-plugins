@@ -18,6 +18,7 @@
 
 import os
 import shutil
+import tempfile
 from molecule.compat import get_stringtype
 from molecule.i18n import _
 from molecule.output import red, brown, blue, green, purple, darkgreen, \
@@ -52,24 +53,19 @@ class BuiltinHandlerMixin:
 
     def _exec_inner_script(self, exec_script, dest_chroot):
 
-        while True:
-            tmp_dir = os.path.join(dest_chroot,
-                str(molecule.utils.get_random_number()))
-            if not os.path.lexists(tmp_dir):
-                break
-
-        os.makedirs(tmp_dir)
-        tmp_exec = os.path.join(tmp_dir, "inner_exec")
+        tmp_fd, tmp_exec = tempfile.mkstemp(dir = dest_chroot,
+            prefix = "molecule_inner")
+        os.close(tmp_fd)
         shutil.copy2(exec_script[0], tmp_exec)
         os.chmod(tmp_exec, 0o755)
-        dest_exec = tmp_exec[len(dest_chroot):]
+
+        dest_exec = os.path.basename(tmp_exec)
         if not dest_exec.startswith("/"):
             dest_exec = "/%s" % (dest_exec,)
 
         rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
-            dest_chroot, self.metadata.get('prechroot', []))
+            dest_chroot, pre_chroot = self.metadata.get('prechroot', []))
         os.remove(tmp_exec)
-        os.rmdir(tmp_dir)
 
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
