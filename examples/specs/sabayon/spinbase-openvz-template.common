@@ -14,7 +14,6 @@ execution_strategy: iso_to_tar
 # outer_chroot_script: /path/to/script/to/be/executed/outside
 
 # Inner chroot script command, to be executed inside destination chroot before packing it
-# - kmerge.sh - setup kernel bins
 # inner_chroot_script: /sabayon/scripts/openvz_inner_chroot_script.sh
 
 # Inner chroot script command, to be executed inside destination chroot after
@@ -39,7 +38,7 @@ inner_chroot_script_after: /sabayon/scripts/tar_generic_inner_chroot_script_afte
 # TAR_CHECKSUM_PATH = path pointing to the destination tar file checksum (md5)
 # post_tar_script: /sabayon/scripts/post_tar_script.sh
 
-# Destination directory for the ISO image path (MANDATORY)
+# Destination directory for the tar file (MANDATORY)
 destination_tar_directory: /sabayon/iso
 
 # Compression method (default is: gz). Supported compression methods: gz, bz2
