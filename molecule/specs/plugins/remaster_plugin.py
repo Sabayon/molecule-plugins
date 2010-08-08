@@ -21,7 +21,7 @@ import tempfile
 import shutil
 
 from molecule.i18n import _
-from molecule.output import red, brown, blue, green, purple, darkgreen, \
+from molecule.output import red, blue, green, purple, darkgreen, \
     darkred, bold, darkblue, readtext
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
 from molecule.specs.plugins.builtin_plugin import ChrootHandler as \
@@ -179,7 +179,11 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
             try:
                 os.rmdir(self.tmp_squash_mount)
             except OSError:
-                pass
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("IsoUnpackHandler"), darkred(self.spec_name),
+                        _("unable to remove temp. dir"), self.tmp_squash_mount,
+                    )
+                )
 
         rc = 0
         if self.iso_mounted:
@@ -193,14 +197,23 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 os.rmdir(self.tmp_mount)
             except OSError:
                 # if not empty, skip
-                pass
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("IsoUnpackHandler"), darkred(self.spec_name),
+                        _("unable to remove temp. dir"), self.tmp_mount,
+                    )
+                )
 
         if not success:
-            if self.metadata['chroot_tmp_dir'] is not None:
+            tmp_dir = self.metadata['chroot_tmp_dir']
+            if tmp_dir is not None:
                 try:
-                    shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+                    shutil.rmtree(tmp_dir, True)
                 except (shutil.Error, OSError,):
-                    pass
+                    self._output.output("[%s|%s] %s: %s" % (
+                            blue("IsoUnpackHandler"), darkred(self.spec_name),
+                            _("unable to remove temp. dir"), tmp_dir,
+                        )
+                    )
 
         return 0
 
