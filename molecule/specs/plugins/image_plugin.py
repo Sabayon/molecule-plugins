@@ -163,7 +163,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         while image_mb > 0:
             image_mb -= 1
             if self.randomize:
-                arr = array.array('c', molecule.utils.get_random_str(mb_bytes))
+                arr = array.array('c', os.urandom(mb_bytes))
             else:
                 arr = array.array('c', chr(0)*mb_bytes)
             arr.tofile(loop_f)
