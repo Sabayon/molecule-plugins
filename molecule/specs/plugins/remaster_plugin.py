@@ -200,6 +200,7 @@ class ChrootHandler(BuiltinChrootHandler):
         # to make superclass working
         self.source_dir = self.metadata['chroot_unpack_path']
         self.dest_dir = self.source_dir
+        return 0
 
     def kill(self, success = True):
         BuiltinChrootHandler.kill(self, success = success)
@@ -276,6 +277,7 @@ class CdrootHandler(BuiltinCdrootHandler):
     def setup(self):
         self.dest_root = self.metadata['cdroot_path']
         self.source_chroot = self.metadata['chroot_unpack_path']
+        return 0
 
     def kill(self, success = True):
         BuiltinCdrootHandler.kill(self, success = success)
@@ -298,6 +300,7 @@ class IsoHandler(BuiltinIsoHandler):
         self.iso_title = self.metadata.get('iso_title', 'Molecule remaster')
         self.source_chroot = self.metadata['chroot_unpack_path']
         self.chroot_dir = self.source_chroot
+        return 0
 
     def kill(self, success = True):
         BuiltinIsoHandler.kill(self, success = success)

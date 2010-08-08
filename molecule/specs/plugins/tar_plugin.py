@@ -53,6 +53,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         self.dest_path = os.path.join(
             self.metadata['destination_tar_directory'], tar_name)
         self.chroot_path = self.metadata['chroot_unpack_path']
+        return 0
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
