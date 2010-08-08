@@ -4,9 +4,7 @@ execution_strategy: iso_to_tar
 # Error script command, executed when something went wrong and molecule has
 # to terminate the execution
 # environment variables exported:
-# - CHROOT_DIR: path to chroot directory, if any
-# - CDROOT_DIR: path to livecd root directory, if any
-# - SOURCE_CHROOT_DIR: path from where chroot is copied for final handling
+# - CHROOT_DIR: path to chroot directory
 # error_script: /path/to/script/to/be/executed/outside/after
 
 # Outer chroot script command, to be executed outside destination chroot before
