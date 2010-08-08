@@ -38,9 +38,8 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
-        self.tmp_mount = tempfile.mkdtemp(prefix = "molecule", dir = "/var/tmp")
-        self.tmp_squash_mount = tempfile.mkdtemp(prefix = "molecule",
-            dir = "/var/tmp")
+        self.tmp_mount = molecule.utils.mkdtemp()
+        self.tmp_squash_mount = molecule.utils.mkdtemp()
         self.iso_mounted = False
         self.squash_mounted = False
         self.metadata['cdroot_path'] = None
@@ -56,8 +55,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         # setup chroot unpack dir
         # can't use /tmp because it could be mounted with "special" options
-        unpack_prefix = tempfile.mkdtemp(prefix = "molecule", dir = "/var/tmp",
-            suffix = "chroot")
+        unpack_prefix = molecule.utils.mkdtemp(suffix = "chroot")
         self.metadata['chroot_tmp_dir'] = unpack_prefix
         self.metadata['chroot_unpack_path'] = os.path.join(unpack_prefix,
             "root")
