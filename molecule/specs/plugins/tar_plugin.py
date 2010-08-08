@@ -65,16 +65,17 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # run pre tar script
         exec_script = self.metadata.get('pre_tar_script')
         if exec_script:
-            os.environ['CHROOT_DIR'] = self.chroot_path
-            os.environ['TAR_PATH'] = self.dest_path
-            os.environ['TAR_CHECKSUM_PATH'] = self.dest_path + \
+            env = os.environ.copy()
+            env['CHROOT_DIR'] = self.chroot_path
+            env['TAR_PATH'] = self.dest_path
+            env['TAR_CHECKSUM_PATH'] = self.dest_path + \
                 TarHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("TarHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script)
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("TarHandler"), darkred(self.spec_name),
@@ -135,16 +136,17 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # run post tar script
         exec_script = self.metadata.get('post_tar_script')
         if exec_script:
-            os.environ['CHROOT_DIR'] = self.chroot_path
-            os.environ['TAR_PATH'] = self.dest_path
-            os.environ['TAR_CHECKSUM_PATH'] = self.dest_path + \
+            env = os.environ.copy()
+            env['CHROOT_DIR'] = self.chroot_path
+            env['TAR_PATH'] = self.dest_path
+            env['TAR_CHECKSUM_PATH'] = self.dest_path + \
                 TarHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("TarHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script)
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("TarHandler"), darkred(self.spec_name),
