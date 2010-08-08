@@ -37,11 +37,22 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
+
         self.tmp_mount = tempfile.mkdtemp(prefix = "molecule", dir = "/var/tmp")
         self.tmp_squash_mount = tempfile.mkdtemp(prefix = "molecule",
             dir = "/var/tmp")
         self.iso_mounted = False
         self.squash_mounted = False
+        self.metadata['cdroot_path'] = None
+
+        # if you want to subclass, override setup() and tweak these
+        self.chroot_dir = None
+        self.dest_root = None
+        self.metadata['chroot_tmp_dir'] = None
+        self.metadata['chroot_unpack_path'] = None
+        self.metadata['cdroot_path'] = None
+
+    def setup(self):
 
         # setup chroot unpack dir
         # can't use /tmp because it could be mounted with "special" options
@@ -125,7 +136,8 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
 
         def dorm():
-            shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+            if self.metadata['chroot_tmp_dir'] is not None:
+                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
 
         # create chroot path
         try:
@@ -186,10 +198,11 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 pass
 
         if not success:
-            try:
-                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
-            except (shutil.Error, OSError,):
-                pass
+            if self.metadata['chroot_tmp_dir'] is not None:
+                try:
+                    shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+                except (shutil.Error, OSError,):
+                    pass
 
         return 0
 
