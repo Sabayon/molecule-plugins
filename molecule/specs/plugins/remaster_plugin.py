@@ -223,7 +223,7 @@ class ChrootHandler(BuiltinChrootHandler):
                     self._config['pkgs_updater'])
                 rc = molecule.utils.exec_chroot_cmd(update_cmd,
                     self.source_dir,
-                    self.metadata.get('prechroot', []))
+                    pre_chroot = self.metadata.get('prechroot', []))
                 if rc != 0:
                     return rc
 
@@ -245,7 +245,7 @@ class ChrootHandler(BuiltinChrootHandler):
             args = add_cmd + packages_to_add
             rc = molecule.utils.exec_chroot_cmd(args,
                 self.source_dir,
-                self.metadata.get('prechroot', []))
+                pre_chroot = self.metadata.get('prechroot', []))
             if rc != 0:
                 return rc
 
@@ -256,7 +256,7 @@ class ChrootHandler(BuiltinChrootHandler):
             args = rm_cmd + packages_to_remove
             rc = molecule.utils.exec_chroot_cmd(args,
                 self.source_dir,
-                self.metadata.get('prechroot', []))
+                pre_chroot = self.metadata.get('prechroot', []))
             if rc != 0:
                 return rc
 
