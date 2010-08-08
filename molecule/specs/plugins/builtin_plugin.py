@@ -30,26 +30,29 @@ class BuiltinHandlerMixin:
     """
     This class contains code in common between built-in handler classes.
     """
-    def _run_error_script(self, source_chroot_dir, chroot_dir, cdroot_dir):
+    def _run_error_script(self, source_chroot_dir, chroot_dir, cdroot_dir,
+        env = None):
+
         error_script = self.metadata.get('error_script')
         if error_script:
+
+            if env is None:
+                env = os.environ.copy()
+            else:
+                env = env.copy()
+
             if source_chroot_dir:
-                os.environ['SOURCE_CHROOT_DIR'] = source_chroot_dir
+                env['SOURCE_CHROOT_DIR'] = source_chroot_dir
             if chroot_dir:
-                os.environ['CHROOT_DIR'] = chroot_dir
+                env['CHROOT_DIR'] = chroot_dir
             if cdroot_dir:
-                os.environ['CDROOT_DIR'] = cdroot_dir
+                env['CDROOT_DIR'] = cdroot_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("BuiltinHandler"), darkred(self.spec_name),
                     _("spawning"), error_script,
                 )
             )
-            molecule.utils.exec_cmd(error_script)
-            for env_key in ("SOURCE_CHROOT_DIR", "CHROOT_DIR", "CDROOT_DIR",):
-                try:
-                    del os.environ[env_key]
-                except KeyError:
-                    continue
+            molecule.utils.exec_cmd(error_script, env = env)
 
     def _exec_inner_script(self, exec_script, dest_chroot):
 
@@ -201,13 +204,14 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # run outer chroot script
         exec_script = self.metadata.get('outer_chroot_script')
         if exec_script:
-            os.environ['CHROOT_DIR'] = self.source_dir
+            env = os.environ.copy()
+            env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script)
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"), darkred(self.spec_name),
@@ -299,13 +303,14 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # run outer chroot script after
         exec_script = self.metadata.get('outer_chroot_script_after')
         if exec_script:
-            os.environ['CHROOT_DIR'] = self.source_dir
+            env = os.environ.copy()
+            env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script)
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"), darkred(self.spec_name),
@@ -515,17 +520,18 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # run pre iso script
         exec_script = self.metadata.get('pre_iso_script')
         if exec_script:
-            os.environ['SOURCE_CHROOT_DIR'] = self.source_chroot
-            os.environ['CHROOT_DIR'] = self.chroot_dir
-            os.environ['CDROOT_DIR'] = self.source_path
-            os.environ['ISO_PATH'] = self.dest_iso
-            os.environ['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
+            env = os.environ.copy()
+            env['SOURCE_CHROOT_DIR'] = self.source_chroot
+            env['CHROOT_DIR'] = self.chroot_dir
+            env['CDROOT_DIR'] = self.source_path
+            env['ISO_PATH'] = self.dest_iso
+            env['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script)
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("IsoHandler"), darkred(self.spec_name),
@@ -546,14 +552,15 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # run post iso script
         exec_script = self.metadata.get('post_iso_script')
         if exec_script:
-            os.environ['ISO_PATH'] = self.dest_iso
-            os.environ['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
+            env = os.environ.copy()
+            env['ISO_PATH'] = self.dest_iso
+            env['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"), darkred(self.spec_name),
                     _("spawning"), exec_script,
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script)
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("IsoHandler"), darkred(self.spec_name),
