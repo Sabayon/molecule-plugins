@@ -53,11 +53,18 @@ class BuiltinHandlerMixin:
 
     def _exec_inner_script(self, exec_script, dest_chroot):
 
-        tmp_fd, tmp_exec = tempfile.mkstemp(dir = dest_chroot,
-            prefix = "molecule_inner")
-        os.close(tmp_fd)
-        shutil.copy2(exec_script[0], tmp_exec)
-        os.chmod(tmp_exec, 0o755)
+        source_exec = exec_script[0]
+        with open(source_exec, "rb") as f_src:
+            tmp_fd, tmp_exec = tempfile.mkstemp(dir = dest_chroot,
+                prefix = "molecule_inner")
+            f_dst = os.fdopen(tmp_fd, "wb")
+            try:
+                shutil.copyfileobj(f_src, f_dst)
+            finally:
+                f_dst.flush()
+                f_dst.close()
+            shutil.copystat(source_exec, tmp_exec)
+            os.chmod(tmp_exec, 0o744)
 
         dest_exec = os.path.basename(tmp_exec)
         if not dest_exec.startswith("/"):
