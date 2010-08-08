@@ -89,6 +89,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         if not os.path.isdir(self.dest_dir):
             os.makedirs(self.dest_dir, 0o755)
+        return 0
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
@@ -181,6 +182,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self.metadata['destination_chroot'], "chroot",
             os.path.basename(self.source_dir)
         )
+        return 0
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
@@ -359,6 +361,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             molecule.utils.empty_dir(self.dest_root)
         if not os.path.isdir(self.dest_root):
             os.makedirs(self.dest_root, 0o755)
+        return 0
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
@@ -493,6 +496,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self.metadata['destination_chroot'], "chroot",
             os.path.basename(self.source_chroot)
         )
+        return 0
 
     def pre_run(self):
         self._output.output("[%s|%s] %s" % (
