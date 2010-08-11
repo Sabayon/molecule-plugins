@@ -256,6 +256,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def _kill_loop_device(self, preserve_loop_device_file = False):
 
+        kill_rc = 0
         if self.image_mounted:
             umounter = self.metadata.get('image_umounter',
                 ImageHandler.DEFAULT_IMAGE_UMOUNTER)
@@ -267,6 +268,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                         _("unable to umount loop device"), self.loop_device,
                     )
                 )
+                kill_rc = rc
             else:
                 self.image_mounted = False
 
@@ -286,6 +288,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                         _("unable to kill loop device"), self.loop_device,
                     )
                 )
+                kill_rc = rc
             else:
                 self.loop_device = None
 
@@ -301,6 +304,9 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                         err,
                     )
                 )
+                kill_rc = 1
+
+        return kill_rc
 
     def kill(self, success = True):
 
@@ -386,14 +392,18 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
+        self._loop_device_killed = False
+        self._loop_device_file_removed = False
 
     def setup(self):
         # ImageHandler sets this
         self.tmp_loop_device_file = \
             self.metadata['ImageHandler_loop_device_file']
         # umount all, but don't remove our loop device file
-        self.metadata['ImageHandler_kill_loop_device'](
+        kill_rc = self.metadata['ImageHandler_kill_loop_device'](
             preserve_loop_device_file = True)
+        if kill_rc:
+            self._loop_device_killed = True
 
         image_name = self.metadata.get('image_name',
             os.path.basename(self.metadata['source_iso']) + \
@@ -429,6 +439,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 shutil.move(self.tmp_loop_device_file, self.dest_path)
             except shutil.Error:
                 raise
+        self._loop_device_file_removed = True
 
         self._output.output("[%s|%s] %s: %s" % (
                 blue("FinalImageHandler"), darkred(self.spec_name),
@@ -472,6 +483,10 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         return 0
 
     def kill(self, success = True):
+        if not success:
+            if not (self._loop_device_file_removed and \
+                self._loop_device_killed):
+                self.metadata['ImageHandler_kill_loop_device']()
         """ Nothing to do """
         return 0
 
