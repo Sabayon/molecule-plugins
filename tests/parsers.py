@@ -97,7 +97,7 @@ class ParsersTest(unittest.TestCase):
                 '/var/lib/entropy/tmp/*',
                 '/var/lib/entropy/packages*/*',
                 '/var/tmp/entropy/*',
-                '/*.txt', u'/usr/portage/a*',
+                '/*.txt', '/usr/portage/a*',
                 '/usr/portage/b*', '/usr/portage/c*',
                 '/usr/portage/d*', '/usr/portage/e*', '/usr/portage/f*',
                 '/usr/portage/g*', '/usr/portage/h*', '/usr/portage/i*',
