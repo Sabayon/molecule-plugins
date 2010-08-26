@@ -160,10 +160,10 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
     def kill(self, success = True):
         if not success:
             self._run_error_script(None, self.chroot_path, None)
-            try:
-                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
-            except (shutil.Error, OSError,):
-                pass
+        try:
+            shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+        except (shutil.Error, OSError,):
+            pass
         return 0
 
 class IsoToTarSpec(GenericSpec):
