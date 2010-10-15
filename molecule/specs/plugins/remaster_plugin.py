@@ -351,6 +351,10 @@ class RemasterSpec(GenericSpec):
 
     def parser_data_path(self):
         return {
+            'execution_strategy': {
+                'cb': self.ne_string,
+                've': self.ve_string_stripper,
+            },
             'prechroot': {
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_string_splitter,
