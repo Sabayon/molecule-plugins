@@ -1,3 +1,14 @@
+# WARNING:
+# variables in your .spec files importing this .common header,
+# DO NOT override the ones set here, but rather their values will
+# be concatenated.
+# So, if this files has:
+#   my_variable: hello_world
+# And you import this (through %import file.common) and set
+#   my_variable: go_to_hell
+# You will get my_variable containing: "hello_world go_to_hell"
+# It doesn't work like in programming languages!
+
 # Define an alternative execution strategy, in this case, the value must be
 execution_strategy: iso_to_image
 
