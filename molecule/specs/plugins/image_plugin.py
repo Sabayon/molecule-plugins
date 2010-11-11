@@ -70,7 +70,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             return sts
         try:
             self._tmp_loop_device_fd, self.tmp_loop_device_file = \
-                tempfile.mkstemp(prefix = "molecule", dir = "/var/tmp")
+                tempfile.mkstemp(prefix = "molecule", dir = self._config['tmp_dir'])
         except (OSError, IOError,) as err:
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
