@@ -451,28 +451,34 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("merging livecd root"), merge_dir,)
                 )
                 import stat
-                content = os.listdir(merge_dir)
-                for mypath in content:
-                    mysource = os.path.join(merge_dir, mypath)
-                    mydest = os.path.join(self.dest_root, mypath)
-                    copystat = False
+                try:
+                    content = os.listdir(merge_dir)
+                    for mypath in content:
+                        mysource = os.path.join(merge_dir, mypath)
+                        mydest = os.path.join(self.dest_root, mypath)
+                        copystat = False
 
-                    if os.path.islink(mysource):
-                        tolink = os.readlink(mysource)
-                        os.symlink(tolink, mydest)
-                    elif os.path.isfile(mysource) or os.path.islink(mysource):
-                        copystat = True
-                        shutil.copy2(mysource, mydest)
-                    elif os.path.isdir(mysource):
-                        copystat = True
-                        shutil.copytree(mysource, mydest)
+                        if os.path.islink(mysource):
+                            tolink = os.readlink(mysource)
+                            os.symlink(tolink, mydest)
+                        elif os.path.isfile(mysource) or os.path.islink(mysource):
+                            copystat = True
+                            shutil.copy2(mysource, mydest)
+                        elif os.path.isdir(mysource):
+                            copystat = True
+                            shutil.copytree(mysource, mydest)
 
-                    if copystat:
-                        user = os.stat(mysource)[stat.ST_UID]
-                        group = os.stat(mysource)[stat.ST_GID]
-                        os.chown(mydest, user, group)
-                        shutil.copystat(mysource, mydest)
-
+                        if copystat:
+                            user = os.stat(mysource)[stat.ST_UID]
+                            group = os.stat(mysource)[stat.ST_GID]
+                            os.chown(mydest, user, group)
+                            shutil.copystat(mysource, mydest)
+                except OSError as err:
+                    self._output.output("[%s|%s] %s: %s" % (
+                        blue("CdrootHandler"), darkred(self.spec_name),
+                        _("cannot merge livecd root, improper usage or system error"), err,)
+                    )
+                    return 1
         return 0
 
 class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
