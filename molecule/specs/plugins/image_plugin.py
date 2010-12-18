@@ -118,7 +118,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['LOOP_DEVICE'] = self.loop_device
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)
@@ -179,7 +179,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args = [ImageHandler.LOSETUP_EXEC, "-c", self.loop_device]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("ImageHandler"), darkred(self.spec_name),
-                _("spawning"), args,
+                _("spawning"), " ".join(args),
             )
         )
         rc = molecule.utils.exec_cmd(args)
@@ -217,7 +217,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         formatter_args = image_formatter + [self.loop_device]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("ImageHandler"), darkred(self.spec_name),
-                _("spawning"), formatter_args,
+                _("spawning"), " ".join(formatter_args),
             )
         )
         rc = molecule.utils.exec_cmd(formatter_args)
@@ -235,7 +235,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         mount_args = mounter + [self.loop_device, self.tmp_image_mount]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("ImageHandler"), darkred(self.spec_name),
-                _("spawning"), mount_args,
+                _("spawning"), " ".join(mount_args),
             )
         )
         rc = molecule.utils.exec_cmd(mount_args)
@@ -469,7 +469,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 FinalImageHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("FinalImageHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)

@@ -72,7 +72,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 TarHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("TarHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)
@@ -143,7 +143,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 TarHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("TarHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)

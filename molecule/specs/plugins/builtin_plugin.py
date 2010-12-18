@@ -49,7 +49,7 @@ class BuiltinHandlerMixin:
                 env['CDROOT_DIR'] = cdroot_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("BuiltinHandler"), darkred(self.spec_name),
-                    _("spawning"), error_script,
+                    _("spawning"), " ".join(error_script),
                 )
             )
             molecule.utils.exec_cmd(error_script, env = env)
@@ -162,7 +162,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args.extend([self.source_dir+"/*", self.dest_dir])
         self._output.output("[%s|%s] %s: %s" % (
                 blue("MirrorHandler"), darkred(self.spec_name),
-                _("spawning"), args,
+                _("spawning"), " ".join(args),
             )
         )
         rc = molecule.utils.exec_cmd(args)
@@ -208,7 +208,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)
@@ -307,7 +307,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)
@@ -425,7 +425,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args.extend(self.metadata.get('extra_mksquashfs_parameters', []))
         self._output.output("[%s|%s] %s: %s" % (
                 blue("CdrootHandler"), darkred(self.spec_name),
-                _("spawning"), args,
+                _("spawning"), " ".join(args),
             )
         )
         rc = molecule.utils.exec_cmd(args)
@@ -534,7 +534,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)
@@ -563,7 +563,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['ISO_CHECKSUM_PATH'] = self.dest_iso + IsoHandler.MD5_EXT
             self._output.output("[%s|%s] %s: %s" % (
                     blue("IsoHandler"), darkred(self.spec_name),
-                    _("spawning"), exec_script,
+                    _("spawning"), " ".join(exec_script),
                 )
             )
             rc = molecule.utils.exec_cmd(exec_script, env = env)
@@ -604,7 +604,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args.extend(['-o', self.dest_iso, self.source_path])
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoHandler"), darkred(self.spec_name),
-                _("spawning"), args,
+                _("spawning"), " ".join(args),
             )
         )
         rc = molecule.utils.exec_cmd(args)
