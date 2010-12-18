@@ -80,7 +80,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         mount_args = mounter + [self.iso_image, self.tmp_mount]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
-                _("spawning"), mount_args,
+                _("spawning"), " ".join(mount_args),
             )
         )
         rc = molecule.utils.exec_cmd(mount_args)
@@ -109,7 +109,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         mount_args = mounter + [squash_file, self.tmp_squash_mount]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
-                _("spawning"), mount_args,
+                _("spawning"), " ".join(mount_args),
             )
         )
         rc = molecule.utils.exec_cmd(mount_args)
