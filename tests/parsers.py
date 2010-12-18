@@ -26,6 +26,7 @@ class ParsersTest(unittest.TestCase):
         from molecule.specs.plugins.remaster_plugin import RemasterSpec
 
         expected_data = {
+            'execution_strategy': "iso_remaster",
             'paths_to_remove': ['/this/and/that', '/that/and/this'],
             'post_iso_script': ['/sabayon/scripts/post_iso_script.sh'],
             'iso_title': 'Sabayon KDE',
@@ -67,6 +68,7 @@ class ParsersTest(unittest.TestCase):
         from molecule.specs.plugins.builtin_plugin import LivecdSpec
 
         expected_data = {
+            'execution_strategy': "livecd",
             'destination_iso_image_name': 'Sabayon_Linux_5.3_x86_chroot_TEST.iso',
             'post_iso_script': ['specs/data/post_iso_script.sh'],
             'extra_mkisofs_parameters': ['-b', 'isolinux/isolinux.bin', '-c',
@@ -144,6 +146,7 @@ class ParsersTest(unittest.TestCase):
         from molecule.specs.plugins.tar_plugin import IsoToTarSpec
 
         expected_data = {
+            'execution_strategy': "iso_to_tar",
             'iso_mounter': ['mount', '-t', 'iso9660', '-o', 'loop,ro'],
             'custom_packages_add_cmd': 'equo install --debug',
             'post_tar_script': ['specs/data/post_tar_script.sh'],
@@ -184,7 +187,8 @@ class ParsersTest(unittest.TestCase):
         from molecule.specs.plugins.image_plugin import IsoToImageSpec
 
         expected_data = {
-            'destination_image_directory': '/sabayon/images',
+            'execution_strategy': "iso_to_image",
+            'destination_image_directory': '/',
             'outer_chroot_script_after': [
                 '/path/to/script/to/be/executed/outside/after'],
             'iso_mounter': ['mount', '-t', 'iso9660', '-o', 'loop'],

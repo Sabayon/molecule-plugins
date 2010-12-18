@@ -35,7 +35,7 @@ pre_image_script: /sabayon/scripts/pre_image_script.sh
 post_image_script: /sabayon/scripts/post_image_script.sh
 
 # Destination directory for the image path (MANDATORY)
-destination_image_directory: /sabayon/images
+destination_image_directory: /
 
 # Specify an alternative image file name (image file name will be automatically
 # produced otherwise)
