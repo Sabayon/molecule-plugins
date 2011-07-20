@@ -330,7 +330,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         return 0
 
 
-class IsoUnpackHandler(RemasterIsoUnpackHandler):
+class ImageIsoUnpackHandler(RemasterIsoUnpackHandler):
 
     def setup(self):
 
@@ -348,6 +348,33 @@ class IsoUnpackHandler(RemasterIsoUnpackHandler):
 
         return 0
 
+    def run(self):
+
+        self._output.output("[%s|%s] %s: %s => %s" % (
+                blue("ImageIsoUnpackHandler"), darkred(self.spec_name),
+                _("iso unpacker running"), self.tmp_squash_mount,
+                self.metadata['chroot_unpack_path'],
+            )
+        )
+
+        def dorm():
+            if self.metadata['chroot_tmp_dir'] is not None:
+                shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
+
+        # copy data into chroot, in our case, destination dir already
+        # exists, so copy_dir() is a bit tricky
+        try:
+            rc = molecule.utils.copy_dir_existing_dest(self.tmp_squash_mount,
+                self.metadata['chroot_unpack_path'])
+        except:
+            dorm()
+            raise
+
+        if rc != 0:
+            dorm()
+
+        return rc
+
     def kill(self, success = True):
         # ImageHandler sets this
         if not success:
@@ -361,7 +388,7 @@ class IsoUnpackHandler(RemasterIsoUnpackHandler):
                 shutil.rmtree(tmp_dir, True)
             except (shutil.Error, OSError,):
                 self._output.output("[%s|%s] %s: %s" % (
-                        blue("IsoUnpackHandler"), darkred(self.spec_name),
+                        blue("ImageIsoUnpackHandler"), darkred(self.spec_name),
                         _("unable to remove temp. dir"), tmp_dir,
                     )
                 )
@@ -642,5 +669,5 @@ class IsoToImageSpec(GenericSpec):
         }
 
     def get_execution_steps(self):
-        return [ImageHandler, IsoUnpackHandler, ChrootHandler,
+        return [ImageHandler, ImageIsoUnpackHandler, ChrootHandler,
             FinalImageHandler]
