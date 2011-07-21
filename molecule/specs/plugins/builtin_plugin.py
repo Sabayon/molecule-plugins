@@ -73,11 +73,19 @@ class BuiltinHandlerMixin:
         if not dest_exec.startswith("/"):
             dest_exec = "/%s" % (dest_exec,)
 
-        rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
-            dest_chroot, pre_chroot = self.metadata.get('prechroot', []))
-        os.remove(tmp_exec)
+        rc = 0
+        try:
+            rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
+                dest_chroot, pre_chroot = self.metadata.get('prechroot', []))
+        except:
+            # kill all the pids inside chroot, no matter what just happened
+            molecule.utils.kill_chroot_pids(dest_chroot, sleep = True)
+            raise
+        finally:
+            os.remove(tmp_exec)
 
         if rc != 0:
+            molecule.utils.kill_chroot_pids(dest_chroot, sleep = True)
             self._output.output("[%s|%s] %s: %s" % (
                     blue("BuiltinHandler"), darkred(self.spec_name),
                     _("inner chroot hook failed"), rc,
