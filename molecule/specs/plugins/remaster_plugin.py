@@ -245,10 +245,17 @@ class ChrootHandler(BuiltinChrootHandler):
             if do_update == 'yes':
                 update_cmd = self.metadata.get('repositories_update_cmd',
                     self._config['pkgs_updater'])
-                rc = molecule.utils.exec_chroot_cmd(update_cmd,
-                    self.source_dir,
-                    pre_chroot = self.metadata.get('prechroot', []))
+                try:
+                    rc = molecule.utils.exec_chroot_cmd(update_cmd,
+                        self.source_dir,
+                        pre_chroot = self.metadata.get('prechroot', []))
+                except:
+                    molecule.utils.kill_chroot_pids(self.source_dir,
+                        sleep = True)
+                    raise
                 if rc != 0:
+                    molecule.utils.kill_chroot_pids(self.source_dir,
+                        sleep = True)
                     return rc
 
         rc = BuiltinChrootHandler.run(self)
@@ -267,10 +274,17 @@ class ChrootHandler(BuiltinChrootHandler):
             add_cmd = self.metadata.get('custom_packages_add_cmd',
                 self._config['pkgs_adder'])
             args = add_cmd + packages_to_add
-            rc = molecule.utils.exec_chroot_cmd(args,
-                self.source_dir,
-                pre_chroot = self.metadata.get('prechroot', []))
+            try:
+                rc = molecule.utils.exec_chroot_cmd(args,
+                    self.source_dir,
+                    pre_chroot = self.metadata.get('prechroot', []))
+            except:
+                molecule.utils.kill_chroot_pids(self.source_dir,
+                    sleep = True)
+                raise
             if rc != 0:
+                molecule.utils.kill_chroot_pids(self.source_dir,
+                    sleep = True)
                 return rc
 
         packages_to_remove = self.metadata.get('packages_to_remove', [])
@@ -278,10 +292,17 @@ class ChrootHandler(BuiltinChrootHandler):
             rm_cmd = self.metadata.get('custom_packages_remove_cmd',
                 self._config['pkgs_remover'])
             args = rm_cmd + packages_to_remove
-            rc = molecule.utils.exec_chroot_cmd(args,
-                self.source_dir,
-                pre_chroot = self.metadata.get('prechroot', []))
+            try:
+                rc = molecule.utils.exec_chroot_cmd(args,
+                    self.source_dir,
+                    pre_chroot = self.metadata.get('prechroot', []))
+            except:
+                molecule.utils.kill_chroot_pids(self.source_dir,
+                    sleep = True)
+                raise
             if rc != 0:
+                molecule.utils.kill_chroot_pids(self.source_dir,
+                    sleep = True)
                 return rc
 
         # run inner chroot script after pkgs handling

@@ -323,9 +323,10 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self._tmp_loop_device_fd = None
 
         if not success:
+            env = os.environ.copy()
+            env["LOOP_DEVICE"] = self.loop_device
+            self._run_error_script(None, None, None, env = env)
             self._kill_loop_device()
-            self._run_error_script(None, None, None)
-
 
         return 0
 
@@ -396,7 +397,7 @@ class ImageIsoUnpackHandler(RemasterIsoUnpackHandler):
         return 0
 
 
-class ChrootHandler(RemasterChrootHandler):
+class ImageChrootHandler(RemasterChrootHandler):
 
     def setup(self):
         # to make superclass working
@@ -405,10 +406,19 @@ class ChrootHandler(RemasterChrootHandler):
         return 0
 
     def kill(self, success = True):
-        # ImageHandler sets this
+        self._output.output("[%s|%s] %s" % (
+                blue("ImageChrootHandler"),
+                darkred(self.spec_name), _("executing kill"),
+            )
+        )
         if not success:
+            env = os.environ.copy()
+            loop_device = self.metadata.get('ImageHandler_loop_device')
+            if loop_device is not None:
+                env["LOOP_DEVICE"] = loop_device
+            self._run_error_script(self.source_dir, self.dest_dir, None,
+                env = env)
             self.metadata['ImageHandler_kill_loop_device']()
-        RemasterChrootHandler.kill(self, success = success)
         return 0
 
 
@@ -669,5 +679,5 @@ class IsoToImageSpec(GenericSpec):
         }
 
     def get_execution_steps(self):
-        return [ImageHandler, ImageIsoUnpackHandler, ChrootHandler,
+        return [ImageHandler, ImageIsoUnpackHandler, ImageChrootHandler,
             FinalImageHandler]
