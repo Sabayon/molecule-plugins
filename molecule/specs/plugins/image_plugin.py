@@ -550,7 +550,7 @@ class IsoToImageSpec(GenericSpec):
             },
             'prechroot': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'release_string': {
                 'cb': self.ne_string, # validation callback
@@ -578,15 +578,15 @@ class IsoToImageSpec(GenericSpec):
             },
             'image_formatter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'image_mounter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'image_umounter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'image_mb': {
                 'cb': self.valid_integer,
@@ -598,23 +598,23 @@ class IsoToImageSpec(GenericSpec):
             },
             'error_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'outer_chroot_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'inner_chroot_script': {
                 'cb': self.valid_path_string_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'inner_chroot_script_after': {
                 'cb': self.valid_path_string_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'outer_chroot_script_after': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'destination_image_directory': {
                 'cb': self.valid_dir,
@@ -622,27 +622,27 @@ class IsoToImageSpec(GenericSpec):
             },
             'pre_image_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'post_image_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'iso_mounter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'iso_umounter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'squash_mounter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'squash_umounter': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'custom_packages_remove_cmd': {
                 'cb': self.valid_ascii,
@@ -662,7 +662,7 @@ class IsoToImageSpec(GenericSpec):
             },
             'repositories_update_cmd': {
                 'cb': self.ne_list,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'execute_repositories_update': {
                 'cb': self.valid_ascii,

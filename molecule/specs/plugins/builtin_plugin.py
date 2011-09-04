@@ -19,6 +19,8 @@
 import os
 import shutil
 import tempfile
+import glob
+
 from molecule.compat import get_stringtype
 from molecule.i18n import _
 from molecule.output import red, brown, blue, green, purple, darkgreen, \
@@ -167,7 +169,8 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args = [self._config['mirror_syncer']]
         args.extend(self._config['mirror_syncer_builtin_args'])
         args.extend(self.metadata.get('extra_rsync_parameters', []))
-        args.extend([self.source_dir+"/*", self.dest_dir])
+        args.extend(glob.glob(self.source_dir + "/*"))
+        args.append(self.dest_dir)
         self._output.output("[%s|%s] %s: %s" % (
                 blue("MirrorHandler"), darkred(self.spec_name),
                 _("spawning"), " ".join(args),
@@ -608,7 +611,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args.extend(self._config['iso_builder_builtin_args'])
         args.extend(self.metadata.get('extra_mkisofs_parameters', []))
         if self.iso_title.strip():
-            args.extend(["-V", '"', self.iso_title[:30], '"'])
+            args.extend(["-V", self.iso_title[:32]])
         args.extend(['-o', self.dest_iso, self.source_path])
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoHandler"), darkred(self.spec_name),
@@ -667,7 +670,7 @@ class LivecdSpec(GenericSpec):
             },
             'prechroot': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'release_string': {
                 'cb': self.ne_string, # validation callback
@@ -695,7 +698,7 @@ class LivecdSpec(GenericSpec):
             },
             'extra_rsync_parameters': {
                 'cb': self.always_valid,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'merge_destination_chroot': {
                 'cb': self.valid_dir,
@@ -703,23 +706,23 @@ class LivecdSpec(GenericSpec):
             },
             'error_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'outer_chroot_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'inner_source_chroot_script': {
                 'cb': self.valid_path_string_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'inner_chroot_script': {
                 'cb': self.valid_path_string_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'outer_chroot_script_after': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'destination_livecd_root': {
                 'cb': self.valid_path_string,
@@ -731,19 +734,19 @@ class LivecdSpec(GenericSpec):
             },
             'extra_mksquashfs_parameters': {
                 'cb': self.always_valid,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'extra_mkisofs_parameters': {
                 'cb': self.always_valid,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'pre_iso_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'post_iso_script': {
                 'cb': self.valid_exec_first_list_item,
-                've': self.ve_string_splitter,
+                've': self.ve_command_splitter,
             },
             'destination_iso_directory': {
                 'cb': self.valid_dir,
