@@ -134,9 +134,11 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         self.image_mb = 0
         self._tmp_image_file_fd = None
         self._tmp_image_file = None
+        self.source_dir = None
 
     def setup(self):
 
+        self.source_dir = self.metadata['source_chroot']
         self.image_mb = self.metadata['image_mb']
 
         try:
@@ -166,6 +168,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('pre_image_script')
         if exec_script:
             env = os.environ.copy()
+            env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
                     _("spawning"), " ".join(exec_script),
@@ -259,8 +262,10 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         GenericExecutionStep.__init__(self, *args, **kwargs)
         self.dest_path = None
         self._tmp_image_file = None
+        self.source_dir = None
 
     def setup(self):
+        self.source_dir = self.metadata['source_chroot']
         self._tmp_image_file = self.metadata['MmcImageHandler_image_file']
 
         image_name = self.metadata.get('image_name')
@@ -320,6 +325,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('post_image_script')
         if exec_script:
             env = os.environ.copy()
+            env['CHROOT_DIR'] = self.source_dir
             env['IMAGE_PATH'] = self.dest_path
             env['IMAGE_CHECKSUM_PATH'] = self.dest_path + \
                 FinalImageHandler.MD5_EXT
