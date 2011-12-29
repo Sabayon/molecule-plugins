@@ -27,6 +27,102 @@ from molecule.specs.plugins.builtin_plugin import BuiltinHandlerMixin
 import molecule.utils
 
 
+class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
+
+    def __init__(self, *args, **kwargs):
+        GenericExecutionStep.__init__(self, *args, **kwargs)
+        self.source_dir = None
+
+    def setup(self):
+        self.source_dir = self.metadata['source_chroot']
+        return 0
+
+    def pre_run(self):
+        self._output.output("[%s|%s] %s" % (
+                blue("ChrootHandler"), darkred(self.spec_name),
+                _("executing pre_run"),
+            )
+        )
+
+        # run outer chroot script
+        exec_script = self.metadata.get('outer_source_chroot_script')
+        if exec_script:
+            env = os.environ.copy()
+            env['CHROOT_DIR'] = self.source_dir
+            self._output.output("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"), darkred(self.spec_name),
+                    _("spawning"), " ".join(exec_script),
+                )
+            )
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            if rc != 0:
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("ChrootHandler"), darkred(self.spec_name),
+                        _("outer chroot hook failed"), rc,
+                    )
+                )
+                return rc
+
+        return 0
+
+    def post_run(self):
+        self._output.output("[%s|%s] %s" % (
+                blue("ChrootHandler"), darkred(self.spec_name),
+                _("executing post_run"),
+            )
+        )
+
+        # run outer chroot script after
+        exec_script = self.metadata.get('outer_source_chroot_script_after')
+        if exec_script:
+            env = os.environ.copy()
+            env['CHROOT_DIR'] = self.source_dir
+            self._output.output("[%s|%s] %s: %s" % (
+                    blue("ChrootHandler"), darkred(self.spec_name),
+                    _("spawning"), " ".join(exec_script),
+                )
+            )
+            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            if rc != 0:
+                self._output.output("[%s|%s] %s: %s" % (
+                        blue("ChrootHandler"), darkred(self.spec_name),
+                        _("outer chroot hook (after inner) failed"), rc,
+                    )
+                )
+                return rc
+
+        return 0
+
+    def kill(self, success = True):
+        """ Nothing to do """
+        return 0
+
+    def run(self):
+
+        self._output.output("[%s|%s] %s" % (
+                blue("ChrootHandler"), darkred(self.spec_name),
+                _("hooks running"),
+            )
+        )
+
+        # run inner chroot script
+        exec_script = self.metadata.get('inner_source_chroot_script')
+        if exec_script:
+            if os.path.isfile(exec_script[0]) and \
+                    os.access(exec_script[0], os.R_OK):
+                rc = self._exec_inner_script(exec_script, self.source_dir)
+                if rc != 0:
+                    return rc
+
+
+        self._output.output("[%s|%s] %s" % (
+                blue("ChrootHandler"), darkred(self.spec_name),
+                _("hooks completed succesfully"),
+            )
+        )
+        return 0
+
+
 class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     LOSETUP_EXEC = "/sbin/losetup"
@@ -276,6 +372,22 @@ class ChrootToMmcImageSpec(GenericSpec):
                 'cb': self.ne_string,
                 've': self.ve_string_stripper,
             },
+            'prechroot': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_command_splitter,
+            },
+            'outer_source_chroot_script': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_command_splitter,
+            },
+            'inner_source_chroot_script': {
+                'cb': self.valid_path_string_first_list_item,
+                've': self.ve_command_splitter,
+            },
+            'outer_source_chroot_script_after': {
+                'cb': self.valid_exec_first_list_item,
+                've': self.ve_command_splitter,
+            },
             'release_string': {
                 'cb': self.ne_string, # validation callback
                 've': self.ve_string_stripper, # value extractor
@@ -339,4 +451,4 @@ class ChrootToMmcImageSpec(GenericSpec):
         }
 
     def get_execution_steps(self):
-        return [ImageHandler, FinalImageHandler]
+        return [ChrootHandler, ImageHandler, FinalImageHandler]
