@@ -48,6 +48,9 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('outer_source_chroot_script')
         if exec_script:
             env = os.environ.copy()
+            env['IMAGE_NAME'] = self.metadata['image_name']
+            env['DESTINATION_IMAGE_DIR'] = \
+                self.metadata['destination_image_directory']
             env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
@@ -76,6 +79,9 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('outer_source_chroot_script_after')
         if exec_script:
             env = os.environ.copy()
+            env['IMAGE_NAME'] = self.metadata['image_name']
+            env['DESTINATION_IMAGE_DIR'] = \
+                self.metadata['destination_image_directory']
             env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ChrootHandler"), darkred(self.spec_name),
@@ -168,6 +174,9 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('pre_image_script')
         if exec_script:
             env = os.environ.copy()
+            env['IMAGE_NAME'] = self.metadata['image_name']
+            env['DESTINATION_IMAGE_DIR'] = \
+                self.metadata['destination_image_directory']
             env['CHROOT_DIR'] = self.source_dir
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
@@ -209,6 +218,9 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['RELEASE_VERSION'] = self.metadata['release_version']
             env['RELEASE_DESC'] = self.metadata['release_desc']
             env['RELEASE_FILE'] = self.metadata['release_file']
+            env['IMAGE_NAME'] = self.metadata['image_name']
+            env['DESTINATION_IMAGE_DIR'] = \
+                self.metadata['destination_image_directory']
 
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
@@ -260,6 +272,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
+        self.image_name = None
         self.dest_path = None
         self._tmp_image_file = None
         self.source_dir = None
@@ -268,9 +281,10 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         self.source_dir = self.metadata['source_chroot']
         self._tmp_image_file = self.metadata['MmcImageHandler_image_file']
 
-        image_name = self.metadata.get('image_name')
+        self.image_name = self.metadata.get('image_name')
         self.dest_path = os.path.join(
-            self.metadata['destination_image_directory'], image_name)
+            self.metadata['destination_image_directory'],
+            self.image_name)
 
         dest_path_dir = os.path.dirname(self.dest_path)
         if (not os.path.lexists(dest_path_dir)) and \
@@ -325,6 +339,9 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('post_image_script')
         if exec_script:
             env = os.environ.copy()
+            env['IMAGE_NAME'] = self.image_name # self.metadata['image_name']
+            env['DESTINATION_IMAGE_DIR'] = self.dest_path
+            # self.metadata['destination_image_directory']
             env['CHROOT_DIR'] = self.source_dir
             env['IMAGE_PATH'] = self.dest_path
             env['IMAGE_CHECKSUM_PATH'] = self.dest_path + \
@@ -370,6 +387,7 @@ class ChrootToMmcImageSpec(GenericSpec):
             "destination_image_directory",
             "image_generator_script",
             "image_mb",
+            "image_name",
         ]
 
     def parser_data_path(self):
