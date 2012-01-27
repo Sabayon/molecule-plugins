@@ -219,6 +219,8 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             env['RELEASE_DESC'] = self.metadata['release_desc']
             env['RELEASE_FILE'] = self.metadata['release_file']
             env['IMAGE_NAME'] = self.metadata['image_name']
+            env['PACKAGES_TO_ADD'] = " ".join(self.metadata.get('packages_to_add', [])
+            env['PACKAGES_TO_REMOVE'] = " ".join(self.metadata.get('packages_to_remove', [])
             env['DESTINATION_IMAGE_DIR'] = \
                 self.metadata['destination_image_directory']
 
@@ -463,6 +465,14 @@ class ChrootToMmcImageSpec(GenericSpec):
             'post_image_script': {
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_command_splitter,
+            },
+            'packages_to_remove': {
+                'cb': self.ne_list,
+                've': self.valid_comma_sep_list,
+            },
+            'packages_to_add': {
+                'cb': self.ne_list,
+                've': self.valid_comma_sep_list,
             },
             'paths_to_remove': {
                 'cb': self.ne_list,
