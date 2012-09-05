@@ -169,8 +169,8 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         args = [self._config['mirror_syncer']]
         args.extend(self._config['mirror_syncer_builtin_args'])
         args.extend(self.metadata.get('extra_rsync_parameters', []))
-        args.extend(glob.glob(self.source_dir + "/*"))
-        args.append(self.dest_dir)
+        args.append(self.source_dir + "/")
+        args.append(self.dest_dir + "/")
         self._output.output("[%s|%s] %s: %s" % (
                 blue("MirrorHandler"), darkred(self.spec_name),
                 _("spawning"), " ".join(args),
