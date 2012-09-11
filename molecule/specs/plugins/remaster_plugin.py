@@ -424,6 +424,10 @@ class RemasterSpec(GenericSpec):
                 'cb': self.valid_exec_first_list_item,
                 've': self.ve_command_splitter,
             },
+            'extra_mksquashfs_parameters': {
+                'cb': self.always_valid,
+                've': self.ve_command_splitter,
+            },
             'extra_mkisofs_parameters': {
                 'cb': self.always_valid,
                 've': self.ve_command_splitter,
