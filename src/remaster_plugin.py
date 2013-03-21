@@ -219,6 +219,10 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 class ChrootHandler(BuiltinChrootHandler):
 
+    _pkgs_adder = ["/usr/bin/equo", "install"]
+    _pkgs_remover = ["/usr/bin/equo", "remove"]
+    _pkgs_updater = ["/usr/bin/equo", "update"]
+
     def setup(self):
         # to make superclass working
         self.source_dir = self.metadata['chroot_unpack_path']
@@ -242,8 +246,9 @@ class ChrootHandler(BuiltinChrootHandler):
             # update repos first?
             do_update = self.metadata.get('execute_repositories_update', 'no')
             if do_update == 'yes':
-                update_cmd = self.metadata.get('repositories_update_cmd',
-                    self._config['pkgs_updater'])
+                update_cmd = self.metadata.get(
+                    'repositories_update_cmd',
+                    self._pkgs_updater)
                 try:
                     rc = molecule.utils.exec_chroot_cmd(update_cmd,
                         self.source_dir,
@@ -270,8 +275,9 @@ class ChrootHandler(BuiltinChrootHandler):
         packages_to_add = self.metadata.get('packages_to_add', [])
         if packages_to_add:
 
-            add_cmd = self.metadata.get('custom_packages_add_cmd',
-                self._config['pkgs_adder'])
+            add_cmd = self.metadata.get(
+                'custom_packages_add_cmd',
+                self._pkgs_adder)
             args = add_cmd + packages_to_add
             try:
                 rc = molecule.utils.exec_chroot_cmd(args,
@@ -288,8 +294,9 @@ class ChrootHandler(BuiltinChrootHandler):
 
         packages_to_remove = self.metadata.get('packages_to_remove', [])
         if packages_to_remove:
-            rm_cmd = self.metadata.get('custom_packages_remove_cmd',
-                self._config['pkgs_remover'])
+            rm_cmd = self.metadata.get(
+                'custom_packages_remove_cmd',
+                self._pkgs_remover)
             args = rm_cmd + packages_to_remove
             try:
                 rc = molecule.utils.exec_chroot_cmd(args,
