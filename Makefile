@@ -1,4 +1,4 @@
-SUBDIRS = molecule
+SUBDIRS = plugins
 PREFIX = /usr
 BINDIR = $(PREFIX)/bin
 DESTDIR = 
