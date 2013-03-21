@@ -1,4 +1,4 @@
-SUBDIRS = plugins
+SUBDIRS = src
 PREFIX = /usr
 BINDIR = $(PREFIX)/bin
 DESTDIR = 

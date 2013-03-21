@@ -22,9 +22,9 @@ import shutil
 from molecule.i18n import _
 from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
-from molecule.specs.plugins.builtin_plugin import BuiltinHandlerMixin
-from molecule.specs.plugins.remaster_plugin import IsoUnpackHandler, \
-    ChrootHandler
+
+from .builtin_plugin import BuiltinHandlerMixin
+from .remaster_plugin import IsoUnpackHandler, ChrootHandler
 import molecule.utils
 
 SUPPORTED_COMPRESSION_METHODS = ["bz2", "gz"]

@@ -26,10 +26,12 @@ import errno
 from molecule.i18n import _
 from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
-from molecule.specs.plugins.builtin_plugin import BuiltinHandlerMixin
-from molecule.specs.plugins.remaster_plugin import IsoUnpackHandler as \
-    RemasterIsoUnpackHandler, ChrootHandler as RemasterChrootHandler
+
 import molecule.utils
+
+from .builtin_plugin import BuiltinHandlerMixin
+from .remaster_plugin import IsoUnpackHandler as RemasterIsoUnpackHandler, \
+    ChrootHandler as RemasterChrootHandler
 
 
 class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):

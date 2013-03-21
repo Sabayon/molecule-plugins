@@ -23,7 +23,7 @@ class ParsersTest(unittest.TestCase):
 
     def test_iso_remaster(self):
 
-        from molecule.specs.plugins.remaster_plugin import RemasterSpec
+        from src.remaster_plugin import RemasterSpec
 
         expected_data = {
             'execution_strategy': "iso_remaster",
@@ -65,7 +65,7 @@ class ParsersTest(unittest.TestCase):
 
     def test_chroot_to_iso(self):
 
-        from molecule.specs.plugins.builtin_plugin import LivecdSpec
+        from src.builtin_plugin import LivecdSpec
 
         expected_data = {
             'execution_strategy': "livecd",
@@ -144,7 +144,7 @@ class ParsersTest(unittest.TestCase):
 
     def test_iso_to_tar(self):
 
-        from molecule.specs.plugins.tar_plugin import IsoToTarSpec
+        from src.tar_plugin import IsoToTarSpec
 
         expected_data = {
             'execution_strategy': "iso_to_tar",
@@ -185,7 +185,7 @@ class ParsersTest(unittest.TestCase):
 
     def test_iso_to_image(self):
 
-        from molecule.specs.plugins.image_plugin import IsoToImageSpec
+        from src.image_plugin import IsoToImageSpec
 
         expected_data = {
             'execution_strategy': "iso_to_image",

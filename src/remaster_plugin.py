@@ -24,14 +24,13 @@ from molecule.i18n import _
 from molecule.output import red, blue, green, purple, darkgreen, \
     darkred, bold, darkblue, readtext
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
-from molecule.specs.plugins.builtin_plugin import ChrootHandler as \
-    BuiltinChrootHandler
-from molecule.specs.plugins.builtin_plugin import CdrootHandler as \
-    BuiltinCdrootHandler
-from molecule.specs.plugins.builtin_plugin import IsoHandler as \
-    BuiltinIsoHandler
-from molecule.specs.plugins.builtin_plugin import BuiltinHandlerMixin
+
 import molecule.utils
+
+from .builtin_plugin import ChrootHandler as BuiltinChrootHandler
+from .builtin_plugin import CdrootHandler as BuiltinCdrootHandler
+from .builtin_plugin import IsoHandler as BuiltinIsoHandler
+from .builtin_plugin import BuiltinHandlerMixin
 
 class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 

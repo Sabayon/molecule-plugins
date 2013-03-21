@@ -25,8 +25,9 @@ from molecule.compat import get_stringtype
 from molecule.i18n import _
 from molecule.output import red, brown, blue, green, purple, darkgreen, \
     darkred, bold, darkblue, readtext
-import molecule.utils
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
+
+import molecule.utils
 
 class BuiltinHandlerMixin:
     """

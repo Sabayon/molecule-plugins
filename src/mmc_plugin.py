@@ -23,8 +23,10 @@ import errno
 from molecule.i18n import _
 from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
-from molecule.specs.plugins.builtin_plugin import BuiltinHandlerMixin
+
 import molecule.utils
+
+from .builtin_plugin import BuiltinHandlerMixin
 
 
 class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
