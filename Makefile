@@ -13,6 +13,3 @@ clean:
 
 install:
 	for d in $(SUBDIRS); do $(MAKE) -C $$d install; done
-	# install the application
-	mkdir -p $(DESTDIR)$(BINDIR)
-	install -m 755 molecule.py $(DESTDIR)$(BINDIR)/molecule
