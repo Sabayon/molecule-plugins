@@ -103,8 +103,12 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # mount squash
         mounter = self.metadata.get('squash_mounter',
             self._config['squash_mounter'])
-        squash_file = os.path.join(self.tmp_mount,
-            self._config['chroot_compressor_output_file'])
+
+        output_file = BuiltinCdrootHandler.chroot_compressor_output_file
+        if "chroot_compressor_output_file" in self.metadata:
+            output_file = self.metadata.get('chroot_compressor_output_file')
+
+        squash_file = os.path.join(self.tmp_mount, output_file)
         mount_args = mounter + [squash_file, self.tmp_squash_mount]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),

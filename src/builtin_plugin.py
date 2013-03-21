@@ -98,6 +98,12 @@ class BuiltinHandlerMixin:
 
 class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
+    _mirror_syncer = "/usr/bin/rsync"
+    _mirror_syncer_builtin_args = [
+        "-a", "--delete", "--delete-excluded",
+        "--delete-during", "--numeric-ids",
+        "--recursive", "-d", "-A", "-H"]
+
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
@@ -167,8 +173,8 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
             )
         )
         # running sync
-        args = [self._config['mirror_syncer']]
-        args.extend(self._config['mirror_syncer_builtin_args'])
+        args = [self._mirror_syncer]
+        args.extend(self._mirror_syncer_builtin_args)
         args.extend(self.metadata.get('extra_rsync_parameters', []))
         args.append(self.source_dir + "/")
         args.append(self.dest_dir + "/")
@@ -369,6 +375,10 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
+    _chroot_compressor_builtin_args = ["-noappend", "-no-progress"]
+    _chroot_compressor = "/usr/bin/mksquashfs"
+    chroot_compressor_output_file = "livecd.squashfs"
+
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
@@ -427,13 +437,13 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 _("compressing chroot"),
             )
         )
-        args = [self._config['chroot_compressor']]
-        comp_output = self._config['chroot_compressor_output_file']
+        args = [self._chroot_compressor]
+        comp_output = self.chroot_compressor_output_file
         if "chroot_compressor_output_file" in self.metadata:
             comp_output = self.metadata.get('chroot_compressor_output_file')
         comp_output = os.path.join(self.dest_root, comp_output)
         args.extend([self.source_chroot, comp_output])
-        args.extend(self._config['chroot_compressor_builtin_args'])
+        args.extend(self._chroot_compressor_builtin_args)
         args.extend(self.metadata.get('extra_mksquashfs_parameters', []))
         self._output.output("[%s|%s] %s: %s" % (
                 blue("CdrootHandler"), darkred(self.spec_name),
