@@ -34,6 +34,12 @@ from .builtin_plugin import BuiltinHandlerMixin
 
 class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
+    _iso_mounter = ["/bin/mount", "-o", "loop,ro", "-t", "iso9660"]
+    _iso_umounter = ["/bin/umount"]
+
+    _squash_mounter = ["/bin/mount", "-o", "loop,ro", "-t", "squashfs"]
+    _squash_umounter = ["/bin/umount"]
+
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
@@ -75,7 +81,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         self.iso_image = self.metadata['source_iso']
 
         # mount
-        mounter = self.metadata.get('iso_mounter', self._config['iso_mounter'])
+        mounter = self.metadata.get('iso_mounter', self._iso_mounter)
         mount_args = mounter + [self.iso_image, self.tmp_mount]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
@@ -102,7 +108,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         # mount squash
         mounter = self.metadata.get('squash_mounter',
-            self._config['squash_mounter'])
+            self._squash_mounter)
 
         output_file = BuiltinCdrootHandler.chroot_compressor_output_file
         if "chroot_compressor_output_file" in self.metadata:
@@ -174,7 +180,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         rc = 0
         if self.squash_mounted:
             umounter = self.metadata.get('squash_umounter',
-                self._config['squash_umounter'])
+                self._squash_umounter)
             args = umounter + [self.tmp_squash_mount]
             rc = molecule.utils.exec_cmd(args)
 
@@ -191,7 +197,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         rc = 0
         if self.iso_mounted:
             umounter = self.metadata.get('iso_umounter',
-                self._config['iso_umounter'])
+                self._iso_umounter)
             args = umounter + [self.tmp_mount]
             rc = molecule.utils.exec_cmd(args)
 

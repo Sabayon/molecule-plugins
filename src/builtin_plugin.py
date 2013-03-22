@@ -507,6 +507,18 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     MD5_EXT = ".md5"
 
+    _cdrtools_mkisofs = "/usr/bin/mkisofs"
+    _iso_builder = _cdrtools_mkisofs
+    # support both cdrkit and cdrtools
+    _cdrkit_genisoimage = "/usr/bin/genisoimage"
+    if os.access(_cdrkit_genisoimage, os.X_OK) and \
+            os.path.exists(_cdrkit_genisoimage):
+        _iso_builder = _cdrkit_genisoimage
+
+    _iso_builder_builtin_args = [
+        "-J", "-R", "-l", "-no-emul-boot",
+        "-boot-load-size", "4", "-udf", "-boot-info-table"]
+
     def __init__(self, *args, **kwargs):
         GenericExecutionStep.__init__(self, *args, **kwargs)
 
@@ -618,8 +630,8 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
             )
         )
 
-        args = [self._config['iso_builder']]
-        args.extend(self._config['iso_builder_builtin_args'])
+        args = [self._iso_builder]
+        args.extend(self._iso_builder_builtin_args)
         args.extend(self.metadata.get('extra_mkisofs_parameters', []))
         if self.iso_title.strip():
             args.extend(["-V", self.iso_title[:32]])
