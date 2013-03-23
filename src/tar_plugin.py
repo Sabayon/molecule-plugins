@@ -39,7 +39,8 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
     MD5_EXT = ".md5"
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(TarHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
     def _get_tar_comp_method(self):
         comp_method = self.metadata.get('compression_method', "gz")

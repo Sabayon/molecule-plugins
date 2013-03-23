@@ -32,7 +32,8 @@ from .builtin_plugin import BuiltinHandlerMixin
 class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(ChrootHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
         self.source_dir = None
 
     def setup(self):
@@ -137,7 +138,8 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
     MB_IN_BYTES = 1024000
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(ImageHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
         # init variables
         self.image_mb = 0
         self._tmp_image_file_fd = None
@@ -275,7 +277,8 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
     MD5_EXT = ".md5"
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(FinalImageHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
         self.image_name = None
         self.dest_path = None
         self._tmp_image_file = None

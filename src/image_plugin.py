@@ -43,7 +43,8 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
     DEFAULT_IMAGE_UMOUNTER = ["/bin/umount"]
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(ImageHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
         # init variables
         self.loop_device = None
@@ -430,7 +431,8 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
     IMAGE_EXT = ".img"
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(FinalImageHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
         self._loop_device_killed = False
         self._loop_device_file_removed = False
 

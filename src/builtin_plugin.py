@@ -29,10 +29,18 @@ from molecule.specs.skel import GenericExecutionStep, GenericSpec
 
 import molecule.utils
 
-class BuiltinHandlerMixin:
+
+class BuiltinHandlerMixin(object):
     """
     This class contains code in common between built-in handler classes.
     """
+
+    def _export_generic_info(self):
+        os.environ['RELEASE_STRING'] = self.metadata.get('release_string', '')
+        os.environ['RELEASE_VERSION'] = self.metadata.get('release_version', '')
+        os.environ['RELEASE_DESC'] = self.metadata.get('release_desc', '')
+        os.environ['PRECHROOT'] = ' '.join(self.metadata.get('prechroot', []))
+
     def _run_error_script(self, source_chroot_dir, chroot_dir, cdroot_dir,
         env = None):
 
@@ -96,6 +104,7 @@ class BuiltinHandlerMixin:
             )
         return rc
 
+
 class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     _mirror_syncer = "/usr/bin/rsync"
@@ -105,7 +114,8 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         "--recursive", "-d", "-A", "-H"]
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(MirrorHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
     def setup(self):
         # creating destination chroot dir
@@ -199,10 +209,12 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         return 0
 
+
 class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(ChrootHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
     def setup(self):
         self.source_dir = self.metadata['source_chroot']
@@ -373,6 +385,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         return 0
 
+
 class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     _chroot_compressor_builtin_args = ["-noappend", "-no-progress"]
@@ -380,7 +393,8 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
     chroot_compressor_output_file = "livecd.squashfs"
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(CdrootHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
     def setup(self):
         self.source_chroot = os.path.join(
@@ -503,6 +517,7 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     return 1
         return 0
 
+
 class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     MD5_EXT = ".md5"
@@ -520,7 +535,8 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
         "-boot-load-size", "4", "-udf", "-boot-info-table"]
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(IsoHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
     def setup(self):
         # setup paths
@@ -668,6 +684,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 f.flush()
 
         return 0
+
 
 class LivecdSpec(GenericSpec):
 

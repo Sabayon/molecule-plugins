@@ -32,6 +32,7 @@ from .builtin_plugin import CdrootHandler as BuiltinCdrootHandler
 from .builtin_plugin import IsoHandler as BuiltinIsoHandler
 from .builtin_plugin import BuiltinHandlerMixin
 
+
 class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     _iso_mounter = ["/bin/mount", "-o", "loop,ro", "-t", "iso9660"]
@@ -41,7 +42,8 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
     _squash_umounter = ["/bin/umount"]
 
     def __init__(self, *args, **kwargs):
-        GenericExecutionStep.__init__(self, *args, **kwargs)
+        super(IsoUnpackHandler, self).__init__(*args, **kwargs)
+        self._export_generic_info()
 
         self.tmp_mount = molecule.utils.mkdtemp()
         self.tmp_squash_mount = molecule.utils.mkdtemp()
