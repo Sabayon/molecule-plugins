@@ -5,10 +5,18 @@ sys.path.insert(0,'.')
 sys.path.insert(0,'..')
 import unittest
 
-from molecule.settings import SpecParser
 from molecule.compat import get_stringtype
+from molecule.settings import SpecParser
+from molecule.specs.factory import PluginFactory
+from molecule.specs.skel import GenericSpec
 
 class ParsersTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Fake the PluginFactory and force it to load our plugin modules
+        import src
+        PluginFactory._SPEC_FACTORY = PluginFactory(GenericSpec, src)
 
     def setUp(self):
         sys.stdout.write("%s called\n" % (self,))
