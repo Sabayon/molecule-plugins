@@ -377,7 +377,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
 class ChrootToMmcImageSpec(GenericSpec):
 
-    PLUGIN_API_VERSION = 0
+    PLUGIN_API_VERSION = 1
 
     @staticmethod
     def execution_strategy():
@@ -397,97 +397,97 @@ class ChrootToMmcImageSpec(GenericSpec):
             "image_name",
         ]
 
-    def parser_data_path(self):
+    def parameters(self):
         return {
             'execution_strategy': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'prechroot': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_command_arguments,
+                'parser': self._command_splitter,
             },
             'outer_source_chroot_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'inner_source_chroot_script': {
-                'cb': self.valid_path_string_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'outer_source_chroot_script_after': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'release_string': {
-                'cb': self.ne_string, # validation callback
-                've': self.ve_string_stripper, # value extractor
+                'verifier': lambda x: len(x) != 0, # validation callback
+                'parser': lambda x: x.strip(), # value extractor
             },
             'release_version': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'release_desc': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'release_file': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'source_chroot': {
-                'cb': self.valid_dir,
-                've': self.ve_string_stripper,
+                'verifier': os.path.isdir,
+                'parser': lambda x: x.strip(),
             },
             'image_name': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'image_mb': {
-                'cb': self.valid_integer,
-                've': self.ve_integer_converter,
+                'verifier': lambda x: x is not None,
+                'parser': self._cast_integer,
             },
             'image_generator_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'error_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'destination_image_directory': {
-                'cb': self.valid_dir,
-                've': self.ve_string_stripper,
+                'verifier': os.path.isdir,
+                'parser': lambda x: x.strip(),
             },
             'source_boot_directory': {
-                'cb': self.valid_dir,
-                've': self.ve_string_stripper,
+                'verifier': os.path.isdir,
+                'parser': lambda x: x.strip(),
             },
             'pre_image_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'post_image_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'packages_to_remove': {
-                'cb': self.ne_list,
-                've': self.valid_comma_sep_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate,
             },
             'packages_to_add': {
-                'cb': self.ne_list,
-                've': self.valid_comma_sep_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate,
             },
             'paths_to_remove': {
-                'cb': self.ne_list,
-                've': self.valid_path_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate_path,
             },
             'paths_to_empty': {
-                'cb': self.ne_list,
-                've': self.valid_path_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate_path,
             },
         }
 
-    def get_execution_steps(self):
+    def execution_steps(self):
         return [ChrootHandler, ImageHandler, FinalImageHandler]

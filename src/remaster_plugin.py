@@ -376,7 +376,7 @@ class IsoHandler(BuiltinIsoHandler):
 
 class RemasterSpec(GenericSpec):
 
-    PLUGIN_API_VERSION = 0
+    PLUGIN_API_VERSION = 1
 
     @staticmethod
     def execution_strategy():
@@ -388,137 +388,137 @@ class RemasterSpec(GenericSpec):
             "destination_iso_directory",
         ]
 
-    def parser_data_path(self):
+    def parameters(self):
         return {
             'execution_strategy': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'prechroot': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_command_arguments,
+                'parser': self._command_splitter,
             },
             'release_string': {
-                'cb': self.ne_string, # validation callback
-                've': self.ve_string_stripper, # value extractor
+                'verifier': lambda x: len(x) != 0, # validation callback
+                'parser': lambda x: x.strip(), # value extractor
             },
             'release_version': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'release_desc': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'release_file': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'source_iso': {
-                'cb': self.valid_path_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: "\0" not in x,
+                'parser': lambda x: x.strip(),
             },
             'iso_title': {
-                'cb': self.ne_string,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'error_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'outer_chroot_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'inner_chroot_script': {
-                'cb': self.valid_path_string_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'inner_chroot_script_after': {
-                'cb': self.valid_path_string_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'outer_chroot_script_after': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'extra_mksquashfs_parameters': {
-                'cb': self.always_valid,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: True,
+                'parser': self._command_splitter,
             },
             'extra_mkisofs_parameters': {
-                'cb': self.always_valid,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: True,
+                'parser': self._command_splitter,
             },
             'pre_iso_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'post_iso_script': {
-                'cb': self.valid_exec_first_list_item,
-                've': self.ve_command_splitter,
+                'verifier': self._verify_executable_arguments,
+                'parser': self._command_splitter,
             },
             'destination_iso_directory': {
-                'cb': self.valid_dir,
-                've': self.ve_string_stripper,
+                'verifier': os.path.isdir,
+                'parser': lambda x: x.strip(),
             },
             'destination_iso_image_name': {
-                'cb': self.valid_ascii,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'iso_mounter': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'iso_umounter': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'squash_mounter': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'squash_umounter': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'merge_livecd_root': {
-                'cb': self.valid_dir,
-                've': self.ve_string_stripper,
+                'verifier': os.path.isdir,
+                'parser': lambda x: x.strip(),
             },
             'custom_packages_remove_cmd': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'custom_packages_add_cmd': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'packages_to_remove': {
-                'cb': self.ne_list,
-                've': self.valid_comma_sep_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate,
             },
             'packages_to_add': {
-                'cb': self.ne_list,
-                've': self.valid_comma_sep_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate,
             },
             'repositories_update_cmd': {
-                'cb': self.ne_list,
-                've': self.ve_command_splitter,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._command_splitter,
             },
             'execute_repositories_update': {
-                'cb': self.valid_ascii,
-                've': self.ve_string_stripper,
+                'verifier': lambda x: len(x) != 0,
+                'parser': lambda x: x.strip(),
             },
             'paths_to_remove': {
-                'cb': self.ne_list,
-                've': self.valid_path_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate_path,
             },
             'paths_to_empty': {
-                'cb': self.ne_list,
-                've': self.valid_path_list,
+                'verifier': lambda x: len(x) != 0,
+                'parser': self._comma_separate_path,
             },
         }
 
-    def get_execution_steps(self):
+    def execution_steps(self):
         return [IsoUnpackHandler, ChrootHandler, CdrootHandler, IsoHandler]

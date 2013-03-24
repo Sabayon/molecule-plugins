@@ -36,7 +36,7 @@ class ParsersTest(unittest.TestCase):
         expected_data = {
             'execution_strategy': "iso_remaster",
             'paths_to_remove': ['/this/and/that', '/that/and/this'],
-            'post_iso_script': ['/sabayon/scripts/post_iso_script.sh'],
+            'post_iso_script': ['specs/data/post_iso_script.sh'],
             'iso_title': 'Sabayon KDE',
             'extra_mkisofs_parameters': ['-b', 'isolinux/isolinux.bin', '-c',
                 'isolinux/boot.cat'],
@@ -46,22 +46,23 @@ class ParsersTest(unittest.TestCase):
             'destination_iso_image_name': 'Sabayon_Linux_5.3_x86_TEST.iso',
             'release_desc': 'x86 TEST',
             'packages_to_remove': ['app-foo/foo', 'app-foo2/foo2'],
-            'pre_iso_script': ['/sabayon/scripts/generic_pre_iso_script.sh',
+            'pre_iso_script': ['specs/data/pre_iso_script.sh',
                 'KDE'],
             'custom_packages_add_cmd': ['equo', 'install', '--ask'],
             'packages_to_add': ['app-admin/packagekit-base',
                 'app-admin/packagekit-qt4', 'app-admin/sulfur'],
             'release_file': '/etc/sabayon-edition',
-            'outer_chroot_script': ['/sabayon/scripts/remaster_pre.sh'],
+            'outer_chroot_script': ['specs/data/outer_chroot_script.sh'],
             'execute_repositories_update': 'yes',
             'inner_chroot_script_after': [
-                '/sabayon/scripts/remaster_generic_inner_chroot_script_after.sh',
+                'specs/data/inner_chroot_script_after.sh',
                 'kde'],
             'release_string': 'Sabayon Linux',
             'paths_to_empty': ['/empty/this', '/empty/that'],
             'destination_iso_directory': 'specs/out/',
             'repositories_update_cmd': ['equo', 'update', '--debug'],
-            'outer_chroot_script_after': ['/sabayon/scripts/remaster_post.sh']
+            'outer_chroot_script_after': [
+                'specs/data/outer_chroot_script_after.sh']
         }
 
         parse_obj = SpecParser("specs/iso_remaster.spec")
@@ -128,7 +129,7 @@ class ParsersTest(unittest.TestCase):
             '__plugin__': None,
             'destination_livecd_root': 'specs/out/fake_livecd_root',
             'release_desc': 'x86 SpinBase',
-            'inner_chroot_script': ['/sabayon/scripts/inner_chroot_script.sh',
+            'inner_chroot_script': ['specs/data/inner_chroot_script.sh',
                 'spinbase'],
             'extra_rsync_parameters': ['--one-file-system', '--exclude',
                 '/proc/*', '--exclude', '/dev/pts/*'],
@@ -189,6 +190,7 @@ class ParsersTest(unittest.TestCase):
 
         self.assert_(isinstance(extracted_data['__plugin__'], IsoToTarSpec))
         extracted_data['__plugin__'] = None
+
         self.assertEqual(expected_data, extracted_data)
 
     def test_iso_to_image(self):
@@ -199,7 +201,7 @@ class ParsersTest(unittest.TestCase):
             'execution_strategy': "iso_to_image",
             'destination_image_directory': '/',
             'outer_chroot_script_after': [
-                '/path/to/script/to/be/executed/outside/after'],
+                'specs/data/outer_chroot_script_after.sh'],
             'iso_mounter': ['mount', '-t', 'iso9660', '-o', 'loop'],
             'prechroot': ['linux32'],
             'image_name': 'image_name_w00t Sabayon_Linux_SpinBase_5.3_x86_ami.img',
@@ -211,20 +213,20 @@ class ParsersTest(unittest.TestCase):
             'image_randomize': 'yes',
             'image_formatter': ['mkfs.ext2'],
             'packages_to_remove': ['app-remove/this', 'app-remove/that'],
-            'inner_chroot_script': ['/sabayon/scripts/openvz_inner_chroot_script.sh'],
+            'inner_chroot_script': ['specs/data/inner_chroot_script.sh'],
             'custom_packages_add_cmd': 'equo install --debug',
             'packages_to_add': ['app-add/this', 'app-add/that'],
             'iso_umounter': ['umount', '-l'],
-            'error_script': ['/path/to/script/to/be/executed/outside/after'],
+            'error_script': ['specs/data/error_script.sh'],
             'image_mounter': ['mount', '-o', 'rw,loop'],
-            'post_image_script': ['/sabayon/scripts/post_image_script.sh'],
-            'outer_chroot_script': ['/path/to/script/to/be/executed/outside'],
+            'post_image_script': ['specs/data/post_image_script.sh'],
+            'outer_chroot_script': ['specs/data/outer_chroot_script.sh'],
             'execute_repositories_update': 'yes',
             'inner_chroot_script_after': [
-                '/sabayon/scripts/image_generic_inner_chroot_script_after.sh'],
+                'specs/data/inner_chroot_script_after.sh'],
             'paths_to_empty': ['/empty/this', 'and/that'],
             'squash_mounter': ['mount', '-t', 'squashfs', '-o', 'loop'],
-            'pre_image_script': ['/sabayon/scripts/pre_image_script.sh'],
+            'pre_image_script': ['specs/data/pre_image_script.sh'],
             'repositories_update_cmd': ['equo', 'update', '--debug'],
             '__plugin__': None, 'image_umounter': ['umount', '-l']
         }
