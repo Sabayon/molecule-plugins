@@ -1,3 +1,51 @@
+commit 6730f714172caa6e46609e383c795fdbbbbe9b91
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Wed Feb 19 11:56:26 2014 +0100
+
+    Drop __init__.py, fix collision with molecule-core
+
+commit 934e29b076d4f98efe52b25db887daec8095d2c5
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Sun Mar 24 14:53:05 2013 +0000
+
+    Port the plugins to the new API
+
+commit 89ada66b0057d585d1827a800a4a7cbc0ffe76fd
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Sat Mar 23 16:03:53 2013 +0000
+
+    [plugins] move old plugin code from molecule-core to molecule-plugins
+
+commit 3d7d8e7fa127bab2afda19f6edf30e3e255464f5
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Sat Mar 23 16:03:20 2013 +0000
+
+    [tests] parsers: force the PluginFactory to load our modules
+
+commit 0960abaece42413cae105069b8bcec5aaa0ff91e
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Fri Mar 22 14:54:23 2013 +0000
+
+    [*] complete code and constants migration from molecule-core to here
+
+commit 8401a2354f3b76d384f78ba21d68787932ba4123
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Thu Mar 21 19:17:14 2013 +0000
+
+    [src] move constants from molecule-core to plugins
+
+commit 368ae8602f02b778dc59787326bb20601e147ffc
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Thu Mar 21 14:19:33 2013 +0000
+
+    [remaster_plugin] Configuration["pkgs_*"] have been dropped from molecule-core
+
+commit 1cbc8588a48120cd454bfe37ec939b3a7a7cfccf
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Thu Mar 21 13:36:06 2013 +0000
+
+    Tagging Molecule version 1.0.1
+
 commit 0850f7412142f7d0a8353b5f82deb66746d2e1d3
 Author: Fabio Erculiani <lxnay@sabayon.org>
 Date:   Thu Mar 21 13:24:51 2013 +0000
