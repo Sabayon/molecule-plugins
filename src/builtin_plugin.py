@@ -558,7 +558,10 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 release_desc.replace(' ', '_'),
             )
         self.dest_iso = os.path.join(dest_iso_dir, dest_iso_filename)
-        self.iso_title = "%s %s %s" % (release_string, release_version, release_desc,)
+        self.iso_title = \
+            os.getenv('MOLECULE_ISO_TITLE', "%s %s %s" % (
+                release_string, release_version, release_desc,
+            ))
         self.source_chroot = self.metadata['source_chroot']
         self.chroot_dir = os.path.join(
             self.metadata['destination_chroot'], "chroot",
