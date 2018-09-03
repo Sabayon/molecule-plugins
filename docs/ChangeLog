@@ -1,3 +1,24 @@
+commit 11d4f252adf5443912631da6223feb0c5454582f
+Merge: e7d036c 7391741
+Author: Ettore Di Giacinto <mudler@users.noreply.github.com>
+Date:   Sun Sep 2 22:25:57 2018 +0200
+
+    Merge pull request #1 from geaaru/master
+    
+    Add support to customize ISO title
+
+commit 73917413dc0cd5b7971d4c96ed7c82362392a1a6
+Author: Geaaru <geaaru@gmail.com>
+Date:   Sat Sep 1 16:32:17 2018 +0200
+
+    Add support to customize ISO title
+
+commit e7d036c81e76b8f5401703730086fadaf5b4b3a8
+Author: Fabio Erculiani <lxnay@sabayon.org>
+Date:   Wed Feb 19 11:58:36 2014 +0100
+
+    Tagging Molecule version 1.0.2
+
 commit 6730f714172caa6e46609e383c795fdbbbbe9b91
 Author: Fabio Erculiani <lxnay@sabayon.org>
 Date:   Wed Feb 19 11:56:26 2014 +0100
