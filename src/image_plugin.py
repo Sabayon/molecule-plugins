@@ -73,8 +73,8 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             return sts
         try:
             self._tmp_loop_device_fd, self.tmp_loop_device_file = \
-                tempfile.mkstemp(prefix = "molecule", dir = self._config['tmp_dir'])
-        except (OSError, IOError,) as err:
+                tempfile.mkstemp(prefix="molecule", dir=self._config['tmp_dir'])
+        except (OSError, IOError,):
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
                     _("setup hook failed"), _("cannot create temporary file"),
@@ -84,7 +84,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         # bind loop device
         args = [ImageHandler.LOSETUP_EXEC, loop_device,
-            self.tmp_loop_device_file]
+                self.tmp_loop_device_file]
         rc = molecule.utils.exec_cmd(args)
         if rc != 0:
             self._output.output("[%s|%s] %s: %s" % (
@@ -124,7 +124,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ImageHandler"), darkred(self.spec_name),
@@ -215,8 +215,10 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             return 1
 
         # format image file
-        image_formatter = self.metadata.get('image_formatter',
-            ImageHandler.DEFAULT_IMAGE_FORMATTER)
+        image_formatter = self.metadata.get(
+            'image_formatter',
+            ImageHandler.DEFAULT_IMAGE_FORMATTER
+        )
         formatter_args = image_formatter + [self.loop_device]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("ImageHandler"), darkred(self.spec_name),
@@ -233,8 +235,10 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             return rc
 
         # mount image file
-        mounter = self.metadata.get('image_mounter',
-            ImageHandler.DEFAULT_IMAGE_MOUNTER)
+        mounter = self.metadata.get(
+            'image_mounter',
+            ImageHandler.DEFAULT_IMAGE_MOUNTER
+        )
         mount_args = mounter + [self.loop_device, self.tmp_image_mount]
         self._output.output("[%s|%s] %s: %s" % (
                 blue("ImageHandler"), darkred(self.spec_name),
@@ -257,16 +261,19 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         """ Nothing to do """
         return 0
 
-    def _kill_loop_device(self, preserve_loop_device_file = False):
+    def _kill_loop_device(self, preserve_loop_device_file=False):
 
         kill_rc = 0
         if self.image_mounted:
-            umounter = self.metadata.get('image_umounter',
-                ImageHandler.DEFAULT_IMAGE_UMOUNTER)
+            umounter = self.metadata.get(
+                'image_umounter',
+                ImageHandler.DEFAULT_IMAGE_UMOUNTER
+            )
             args = umounter + [self.tmp_image_mount]
             rc = molecule.utils.exec_cmd(args)
             if rc != 0:
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("ImageHandler"), darkred(self.spec_name),
                         _("unable to umount loop device"), self.loop_device,
                     )
@@ -284,7 +291,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # kill loop device
         if self.loop_device is not None:
             rc = molecule.utils.exec_cmd([ImageHandler.LOSETUP_EXEC, "-d",
-                self.loop_device])
+                                          self.loop_device])
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ImageHandler"), darkred(self.spec_name),
@@ -296,7 +303,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 self.loop_device = None
 
         if (self.tmp_loop_device_file is not None) and \
-            (not preserve_loop_device_file):
+                (not preserve_loop_device_file):
             try:
                 os.remove(self.tmp_loop_device_file)
                 self.tmp_loop_device_file = None
@@ -311,7 +318,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         return kill_rc
 
-    def kill(self, success = True):
+    def kill(self, success=True):
 
         # kill tmp files
         if self._tmp_loop_device_fd is not None:
@@ -328,7 +335,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         if not success:
             env = os.environ.copy()
             env["LOOP_DEVICE"] = self.loop_device
-            self._run_error_script(None, None, None, env = env)
+            self._run_error_script(None, None, None, env=env)
             self._kill_loop_device()
 
         return 0
@@ -338,7 +345,7 @@ class ImageIsoUnpackHandler(RemasterIsoUnpackHandler):
 
     def setup(self):
 
-        unpack_prefix = molecule.utils.mkdtemp(suffix = "chroot")
+        unpack_prefix = molecule.utils.mkdtemp(suffix="chroot")
 
         self.metadata['chroot_tmp_dir'] = unpack_prefix
         self.metadata['chroot_unpack_path'] = \
@@ -368,9 +375,11 @@ class ImageIsoUnpackHandler(RemasterIsoUnpackHandler):
         # copy data into chroot, in our case, destination dir already
         # exists, so copy_dir() is a bit tricky
         try:
-            rc = molecule.utils.copy_dir_existing_dest(self.tmp_squash_mount,
-                self.metadata['chroot_unpack_path'])
-        except:
+            rc = molecule.utils.copy_dir_existing_dest(
+                self.tmp_squash_mount,
+                self.metadata['chroot_unpack_path']
+            )
+        except Exception:
             dorm()
             raise
 
@@ -379,11 +388,11 @@ class ImageIsoUnpackHandler(RemasterIsoUnpackHandler):
 
         return rc
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         # ImageHandler sets this
         if not success:
             self.metadata['ImageHandler_kill_loop_device']()
-        RemasterIsoUnpackHandler.kill(self, success = success)
+        RemasterIsoUnpackHandler.kill(self, success=success)
 
         # we don't need the whole dir
         tmp_dir = self.metadata['chroot_tmp_dir']
@@ -391,7 +400,8 @@ class ImageIsoUnpackHandler(RemasterIsoUnpackHandler):
             try:
                 shutil.rmtree(tmp_dir, True)
             except (shutil.Error, OSError,):
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("ImageIsoUnpackHandler"), darkred(self.spec_name),
                         _("unable to remove temp. dir"), tmp_dir,
                     )
@@ -408,8 +418,9 @@ class ImageChrootHandler(RemasterChrootHandler):
         self.dest_dir = self.source_dir
         return 0
 
-    def kill(self, success = True):
-        self._output.output("[%s|%s] %s" % (
+    def kill(self, success=True):
+        self._output.output(
+            "[%s|%s] %s" % (
                 blue("ImageChrootHandler"),
                 darkred(self.spec_name), _("executing kill"),
             )
@@ -420,7 +431,7 @@ class ImageChrootHandler(RemasterChrootHandler):
             if loop_device is not None:
                 env["LOOP_DEVICE"] = loop_device
             self._run_error_script(self.source_dir, self.dest_dir, None,
-                env = env)
+                                   env=env)
             self.metadata['ImageHandler_kill_loop_device']()
         return 0
 
@@ -442,19 +453,21 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             self.metadata['ImageHandler_loop_device_file']
         # umount all, but don't remove our loop device file
         kill_rc = self.metadata['ImageHandler_kill_loop_device'](
-            preserve_loop_device_file = True)
+            preserve_loop_device_file=True
+        )
         if kill_rc:
             self._loop_device_killed = True
 
-        image_name = self.metadata.get('image_name',
-            os.path.basename(self.metadata['source_iso']) + \
-                FinalImageHandler.IMAGE_EXT)
+        image_name = self.metadata.get(
+            'image_name',
+            os.path.basename(self.metadata['source_iso']) +
+            FinalImageHandler.IMAGE_EXT)
         self.dest_path = os.path.join(
             self.metadata['destination_image_directory'], image_name)
 
         dest_path_dir = os.path.dirname(self.dest_path)
         if (not os.path.lexists(dest_path_dir)) and \
-            (not os.path.isdir(dest_path_dir)):
+                (not os.path.isdir(dest_path_dir)):
             os.makedirs(dest_path_dir, 0o755)
 
         return 0
@@ -497,7 +510,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             md5file = self.dest_path + FinalImageHandler.MD5_EXT
             with open(md5file, "w") as f:
                 f.write("%s  %s\n" % (digest,
-                    os.path.basename(self.dest_path),))
+                                      os.path.basename(self.dest_path),))
                 f.flush()
 
     def post_run(self):
@@ -513,9 +526,10 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("FinalImageHandler"), darkred(self.spec_name),
                         _("post image hook failed"), rc,
                     )
@@ -523,13 +537,14 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 return rc
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
-            if not (self._loop_device_file_removed and \
-                self._loop_device_killed):
+            if not (self._loop_device_file_removed and
+                    self._loop_device_killed):
                 self.metadata['ImageHandler_kill_loop_device']()
         """ Nothing to do """
         return 0
+
 
 class IsoToImageSpec(GenericSpec):
 
@@ -557,8 +572,8 @@ class IsoToImageSpec(GenericSpec):
                 'parser': self._command_splitter,
             },
             'release_string': {
-                'verifier': lambda x: len(x) != 0, # validation callback
-                'parser': lambda x: x.strip(), # value extractor
+                'verifier': lambda x: len(x) != 0,  # validation callback
+                'parser': lambda x: x.strip(),  # value extractor
             },
             'release_version': {
                 'verifier': lambda x: len(x) != 0,
@@ -684,4 +699,4 @@ class IsoToImageSpec(GenericSpec):
 
     def execution_steps(self):
         return [ImageHandler, ImageIsoUnpackHandler, ImageChrootHandler,
-            FinalImageHandler]
+                FinalImageHandler]

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
-sys.path.insert(0,'.')
-sys.path.insert(0,'..')
+sys.path.insert(0, '.')
+sys.path.insert(0, '..')
 import unittest
 
-from molecule.compat import get_stringtype
 from molecule.settings import SpecParser
 from molecule.specs.factory import PluginFactory
 from molecule.specs.skel import GenericSpec
+
 
 class ParsersTest(unittest.TestCase):
 
@@ -39,7 +38,7 @@ class ParsersTest(unittest.TestCase):
             'post_iso_script': ['specs/data/post_iso_script.sh'],
             'iso_title': 'Sabayon KDE',
             'extra_mkisofs_parameters': ['-b', 'isolinux/isolinux.bin', '-c',
-                'isolinux/boot.cat'],
+                                         'isolinux/boot.cat'],
             'release_version': '5.3',
             'source_iso': 'specs/data/Sabayon_Linux_SpinBase_DAILY_x86.iso',
             '__plugin__': None,
@@ -47,10 +46,10 @@ class ParsersTest(unittest.TestCase):
             'release_desc': 'x86 TEST',
             'packages_to_remove': ['app-foo/foo', 'app-foo2/foo2'],
             'pre_iso_script': ['specs/data/pre_iso_script.sh',
-                'KDE'],
+                               'KDE'],
             'custom_packages_add_cmd': ['equo', 'install', '--ask'],
             'packages_to_add': ['app-admin/packagekit-base',
-                'app-admin/packagekit-qt4', 'app-admin/sulfur'],
+                                'app-admin/packagekit-qt4', 'app-admin/sulfur'],
             'release_file': '/etc/sabayon-edition',
             'outer_chroot_script': ['specs/data/outer_chroot_script.sh'],
             'execute_repositories_update': 'yes',
@@ -81,7 +80,7 @@ class ParsersTest(unittest.TestCase):
             'destination_iso_image_name': 'Sabayon_Linux_5.3_x86_chroot_TEST.iso',
             'post_iso_script': ['specs/data/post_iso_script.sh'],
             'extra_mkisofs_parameters': ['-b', 'isolinux/isolinux.bin', '-c',
-                'isolinux/boot.cat'],
+                                         'isolinux/boot.cat'],
             'prechroot': ['linux32'],
             'pre_iso_script': ['specs/data/pre_iso_script.sh'],
             'paths_to_remove': [
@@ -130,17 +129,21 @@ class ParsersTest(unittest.TestCase):
             'destination_livecd_root': 'specs/out/fake_livecd_root',
             'release_desc': 'x86 SpinBase',
             'inner_chroot_script': ['specs/data/inner_chroot_script.sh',
-                'spinbase'],
-            'extra_rsync_parameters': ['--one-file-system', '--exclude',
-                '/proc/*', '--exclude', '/dev/pts/*'],
+                                    'spinbase'],
+            'extra_rsync_parameters': [
+                '--one-file-system', '--exclude',
+                '/proc/*', '--exclude', '/dev/pts/*'
+            ],
             'release_file': '/etc/sabayon-edition',
             'merge_livecd_root': 'specs/out/fake_merge_livecd_root',
             'release_string': 'Sabayon Linux',
-            'paths_to_empty': ['/home/sabayonuser/.thumbnails/',
+            'paths_to_empty': [
+                '/home/sabayonuser/.thumbnails/',
                 '/root/.ccache', '/var/tmp/portage', '/var/tmp/ccache',
                 '/var/tmp/portage-pkg', '/var/tmp/binpkgs',
                 '/var/lib/entropy/portage', '/var/lib/entropy/logs',
-                '/var/cache/genkernel'],
+                '/var/cache/genkernel'
+            ],
             'destination_iso_directory': 'specs/out'
         }
 
@@ -237,6 +240,7 @@ class ParsersTest(unittest.TestCase):
         self.assert_(isinstance(extracted_data['__plugin__'], IsoToImageSpec))
         extracted_data['__plugin__'] = None
         self.assertEqual(expected_data, extracted_data)
+
 
 if __name__ == '__main__':
     unittest.main()

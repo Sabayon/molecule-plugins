@@ -29,6 +29,7 @@ import molecule.utils
 
 SUPPORTED_COMPRESSION_METHODS = ["bz2", "gz"]
 
+
 class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     _TAR_EXEC = "/bin/tar"
@@ -48,9 +49,11 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
     def setup(self):
         # setup compression method, default is gz
-        tar_name = self.metadata.get('tar_name',
-            os.path.basename(self.metadata['source_iso']) + ".tar." + \
-            self.metadata.get('compression_method', "gz"))
+        tar_name = self.metadata.get(
+            'tar_name',
+            os.path.basename(self.metadata['source_iso']) + ".tar." +
+            self.metadata.get('compression_method', "gz")
+        )
         self.dest_path = os.path.join(
             self.metadata['destination_tar_directory'], tar_name)
         self.chroot_path = self.metadata['chroot_unpack_path']
@@ -76,9 +79,10 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("TarHandler"), darkred(self.spec_name),
                         _("pre tar hook failed"), rc,
                     )
@@ -96,7 +100,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         dest_path_dir = os.path.dirname(self.dest_path)
         if not os.path.isdir(dest_path_dir) and not \
-            os.path.lexists(dest_path_dir):
+                os.path.lexists(dest_path_dir):
             os.makedirs(dest_path_dir, 0o755)
 
         current_dir = os.getcwd()
@@ -104,7 +108,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         os.chdir(self.chroot_path)
 
         args = (TarHandler._TAR_EXEC, "cfp" + self._get_tar_comp_method(),
-            self.dest_path, ".", "--atime-preserve", "--numeric-owner")
+                self.dest_path, ".", "--atime-preserve", "--numeric-owner")
         rc = molecule.utils.exec_cmd(args)
         os.chdir(current_dir)
         if rc != 0:
@@ -147,7 +151,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("TarHandler"), darkred(self.spec_name),
@@ -158,7 +162,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
             self._run_error_script(None, self.chroot_path, None)
         try:
@@ -166,6 +170,7 @@ class TarHandler(GenericExecutionStep, BuiltinHandlerMixin):
         except (shutil.Error, OSError,):
             pass
         return 0
+
 
 class IsoToTarSpec(GenericSpec):
 
@@ -175,7 +180,8 @@ class IsoToTarSpec(GenericSpec):
     def execution_strategy():
         return "iso_to_tar"
 
-    def supported_compression_method(self, comp_m):
+    @staticmethod
+    def supported_compression_method(comp_m):
         return comp_m in SUPPORTED_COMPRESSION_METHODS
 
     def vital_parameters(self):
@@ -195,8 +201,8 @@ class IsoToTarSpec(GenericSpec):
                 'parser': self._command_splitter,
             },
             'release_string': {
-                'verifier': lambda x: len(x) != 0, # validation callback
-                'parser': lambda x: x.strip(), # value extractor
+                'verifier': lambda x: len(x) != 0,  # validation callback
+                'parser': lambda x: x.strip(),  # value extractor
             },
             'release_version': {
                 'verifier': lambda x: len(x) != 0,

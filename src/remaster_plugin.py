@@ -17,12 +17,10 @@
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os
-import tempfile
 import shutil
 
 from molecule.i18n import _
-from molecule.output import red, blue, green, purple, darkgreen, \
-    darkred, bold, darkblue, readtext
+from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
 
 import molecule.utils
@@ -62,10 +60,12 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         # setup chroot unpack dir
         # can't use /tmp because it could be mounted with "special" options
-        unpack_prefix = molecule.utils.mkdtemp(suffix = "chroot")
+        unpack_prefix = molecule.utils.mkdtemp(suffix="chroot")
         self.metadata['chroot_tmp_dir'] = unpack_prefix
-        self.metadata['chroot_unpack_path'] = os.path.join(unpack_prefix,
-            "root")
+        self.metadata['chroot_unpack_path'] = os.path.join(
+            unpack_prefix,
+            "root"
+        )
 
         # setup upcoming new chroot path
         self.dest_root = os.path.join(unpack_prefix, "cdroot")
@@ -110,7 +110,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         # mount squash
         mounter = self.metadata.get('squash_mounter',
-            self._squash_mounter)
+                                    self._squash_mounter)
 
         output_file = BuiltinCdrootHandler.chroot_compressor_output_file
         if "chroot_compressor_output_file" in self.metadata:
@@ -151,8 +151,8 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         # create chroot path
         try:
             rc = molecule.utils.copy_dir(self.tmp_squash_mount,
-                self.metadata['chroot_unpack_path'])
-        except:
+                                         self.metadata['chroot_unpack_path'])
+        except Exception:
             dorm()
             raise
 
@@ -169,7 +169,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         self._output.output("[%s|%s] %s" % (
                 blue("IsoUnpackHandler"), darkred(self.spec_name),
                 _("executing kill"),
@@ -182,7 +182,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         rc = 0
         if self.squash_mounted:
             umounter = self.metadata.get('squash_umounter',
-                self._squash_umounter)
+                                         self._squash_umounter)
             args = umounter + [self.tmp_squash_mount]
             rc = molecule.utils.exec_cmd(args)
 
@@ -190,7 +190,8 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
             try:
                 os.rmdir(self.tmp_squash_mount)
             except OSError:
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("IsoUnpackHandler"), darkred(self.spec_name),
                         _("unable to remove temp. dir"), self.tmp_squash_mount,
                     )
@@ -199,7 +200,7 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
         rc = 0
         if self.iso_mounted:
             umounter = self.metadata.get('iso_umounter',
-                self._iso_umounter)
+                                         self._iso_umounter)
             args = umounter + [self.tmp_mount]
             rc = molecule.utils.exec_cmd(args)
 
@@ -208,7 +209,8 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 os.rmdir(self.tmp_mount)
             except OSError:
                 # if not empty, skip
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("IsoUnpackHandler"), darkred(self.spec_name),
                         _("unable to remove temp. dir"), self.tmp_mount,
                     )
@@ -221,10 +223,10 @@ class IsoUnpackHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     shutil.rmtree(tmp_dir, True)
                 except (shutil.Error, OSError,):
                     self._output.output("[%s|%s] %s: %s" % (
-                            blue("IsoUnpackHandler"), darkred(self.spec_name),
-                            _("unable to remove temp. dir"), tmp_dir,
-                        )
+                        blue("IsoUnpackHandler"), darkred(self.spec_name),
+                        _("unable to remove temp. dir"), tmp_dir,
                     )
+                                        )
 
         return 0
 
@@ -241,8 +243,8 @@ class ChrootHandler(BuiltinChrootHandler):
         self.dest_dir = self.source_dir
         return 0
 
-    def kill(self, success = True):
-        BuiltinChrootHandler.kill(self, success = success)
+    def kill(self, success=True):
+        BuiltinChrootHandler.kill(self, success=success)
         if not success:
             try:
                 shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
@@ -262,23 +264,26 @@ class ChrootHandler(BuiltinChrootHandler):
                     'repositories_update_cmd',
                     self._pkgs_updater)
                 try:
-                    rc = molecule.utils.exec_chroot_cmd(update_cmd,
+                    rc = molecule.utils.exec_chroot_cmd(
+                        update_cmd,
                         self.source_dir,
-                        pre_chroot = self.metadata.get('prechroot', []))
-                except:
+                        pre_chroot=self.metadata.get('prechroot', [])
+                    )
+                except Exception:
                     molecule.utils.kill_chroot_pids(self.source_dir,
-                        sleep = True)
+                                                    sleep=True)
                     raise
                 if rc != 0:
                     molecule.utils.kill_chroot_pids(self.source_dir,
-                        sleep = True)
+                                                    sleep=True)
                     return rc
 
         rc = BuiltinChrootHandler.run(self)
         if rc != 0:
             return rc
 
-        self._output.output("[%s|%s] %s" % (
+        self._output.output(
+            "[%s|%s] %s" % (
                 blue("ChrootHandler"), darkred(self.spec_name),
                 _("hooks running"),
             )
@@ -292,16 +297,18 @@ class ChrootHandler(BuiltinChrootHandler):
                 self._pkgs_adder)
             args = add_cmd + packages_to_add
             try:
-                rc = molecule.utils.exec_chroot_cmd(args,
+                rc = molecule.utils.exec_chroot_cmd(
+                    args,
                     self.source_dir,
-                    pre_chroot = self.metadata.get('prechroot', []))
-            except:
+                    pre_chroot=self.metadata.get('prechroot', [])
+                )
+            except Exception:
                 molecule.utils.kill_chroot_pids(self.source_dir,
-                    sleep = True)
+                                                sleep=True)
                 raise
             if rc != 0:
                 molecule.utils.kill_chroot_pids(self.source_dir,
-                    sleep = True)
+                                                sleep=True)
                 return rc
 
         packages_to_remove = self.metadata.get('packages_to_remove', [])
@@ -311,23 +318,25 @@ class ChrootHandler(BuiltinChrootHandler):
                 self._pkgs_remover)
             args = rm_cmd + packages_to_remove
             try:
-                rc = molecule.utils.exec_chroot_cmd(args,
+                rc = molecule.utils.exec_chroot_cmd(
+                    args,
                     self.source_dir,
-                    pre_chroot = self.metadata.get('prechroot', []))
-            except:
+                    pre_chroot=self.metadata.get('prechroot', [])
+                )
+            except Exception:
                 molecule.utils.kill_chroot_pids(self.source_dir,
-                    sleep = True)
+                                                sleep=True)
                 raise
             if rc != 0:
                 molecule.utils.kill_chroot_pids(self.source_dir,
-                    sleep = True)
+                                                sleep=True)
                 return rc
 
         # run inner chroot script after pkgs handling
         exec_script = self.metadata.get('inner_chroot_script_after')
         if exec_script:
             if os.path.isfile(exec_script[0]) and \
-                os.access(exec_script[0], os.R_OK):
+                    os.access(exec_script[0], os.R_OK):
                 rc = self._exec_inner_script(exec_script, self.source_dir)
                 if rc != 0:
                     return rc
@@ -342,8 +351,8 @@ class CdrootHandler(BuiltinCdrootHandler):
         self.source_chroot = self.metadata['chroot_unpack_path']
         return 0
 
-    def kill(self, success = True):
-        BuiltinCdrootHandler.kill(self, success = success)
+    def kill(self, success=True):
+        BuiltinCdrootHandler.kill(self, success=success)
         if not success:
             try:
                 shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
@@ -351,22 +360,25 @@ class CdrootHandler(BuiltinCdrootHandler):
                 pass
         return 0
 
+
 class IsoHandler(BuiltinIsoHandler):
 
     def setup(self):
         # cdroot dir
         self.source_path = self.metadata['cdroot_path']
-        dest_iso_filename = self.metadata.get('destination_iso_image_name',
-            "remaster_" + os.path.basename(self.metadata['source_iso']))
+        dest_iso_filename = self.metadata.get(
+            'destination_iso_image_name',
+            "remaster_" + os.path.basename(self.metadata['source_iso'])
+        )
         self.dest_iso = os.path.join(self.metadata['destination_iso_directory'],
-            dest_iso_filename)
+                                     dest_iso_filename)
         self.iso_title = self.metadata.get('iso_title', 'Molecule remaster')
         self.source_chroot = self.metadata['chroot_unpack_path']
         self.chroot_dir = self.source_chroot
         return 0
 
-    def kill(self, success = True):
-        BuiltinIsoHandler.kill(self, success = success)
+    def kill(self, success=True):
+        BuiltinIsoHandler.kill(self, success=success)
         try:
             shutil.rmtree(self.metadata['chroot_tmp_dir'], True)
         except (shutil.Error, OSError,):
@@ -399,8 +411,8 @@ class RemasterSpec(GenericSpec):
                 'parser': self._command_splitter,
             },
             'release_string': {
-                'verifier': lambda x: len(x) != 0, # validation callback
-                'parser': lambda x: x.strip(), # value extractor
+                'verifier': lambda x: len(x) != 0,  # validation callback
+                'parser': lambda x: x.strip(),  # value extractor
             },
             'release_version': {
                 'verifier': lambda x: len(x) != 0,
