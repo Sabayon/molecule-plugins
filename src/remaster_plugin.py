@@ -372,7 +372,10 @@ class IsoHandler(BuiltinIsoHandler):
         )
         self.dest_iso = os.path.join(self.metadata['destination_iso_directory'],
                                      dest_iso_filename)
-        self.iso_title = self.metadata.get('iso_title', 'Molecule remaster')
+        self.iso_title = \
+            os.getenv('MOLECULE_ISO_TITLE',
+                      self.metadata.get('iso_title', 'Molecule remaster')
+            )
         self.source_chroot = self.metadata['chroot_unpack_path']
         self.chroot_dir = self.source_chroot
         return 0
