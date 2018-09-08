@@ -20,8 +20,8 @@ os.environ["MOLECULE_PLUGIN_MODULES"] = ":".join(_plugins)
 
 
 import unittest
-sys.path.insert(0,'.')
-sys.path.insert(0,'..')
+sys.path.insert(0, '.')
+sys.path.insert(0, '..')
 
 from tests import parsers
 rc = 0
@@ -33,7 +33,7 @@ tests = []
 for mod in mods:
     tests.append(unittest.TestLoader().loadTestsFromModule(mod))
 
-result = unittest.TextTestRunner(verbosity = 1).run(unittest.TestSuite(tests))
+result = unittest.TextTestRunner(verbosity=1).run(unittest.TestSuite(tests))
 if result.errors:
     rc = 1
 raise SystemExit(rc)

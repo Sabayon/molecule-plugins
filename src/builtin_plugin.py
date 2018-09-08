@@ -19,12 +19,10 @@
 import os
 import shutil
 import tempfile
-import glob
 
 from molecule.compat import get_stringtype
 from molecule.i18n import _
-from molecule.output import red, brown, blue, green, purple, darkgreen, \
-    darkred, bold, darkblue, readtext
+from molecule.output import blue, darkred
 from molecule.specs.skel import GenericExecutionStep, GenericSpec
 
 import molecule.utils
@@ -42,7 +40,7 @@ class BuiltinHandlerMixin(object):
         os.environ['PRECHROOT'] = ' '.join(self.metadata.get('prechroot', []))
 
     def _run_error_script(self, source_chroot_dir, chroot_dir, cdroot_dir,
-        env = None):
+                          env=None):
 
         error_script = self.metadata.get('error_script')
         if error_script:
@@ -63,14 +61,14 @@ class BuiltinHandlerMixin(object):
                     _("spawning"), " ".join(error_script),
                 )
             )
-            molecule.utils.exec_cmd(error_script, env = env)
+            molecule.utils.exec_cmd(error_script, env=env)
 
     def _exec_inner_script(self, exec_script, dest_chroot):
 
         source_exec = exec_script[0]
         with open(source_exec, "rb") as f_src:
-            tmp_fd, tmp_exec = tempfile.mkstemp(dir = dest_chroot,
-                prefix = "molecule_inner")
+            tmp_fd, tmp_exec = tempfile.mkstemp(dir=dest_chroot,
+                                                prefix="molecule_inner")
             f_dst = os.fdopen(tmp_fd, "wb")
             try:
                 shutil.copyfileobj(f_src, f_dst)
@@ -84,19 +82,22 @@ class BuiltinHandlerMixin(object):
         if not dest_exec.startswith("/"):
             dest_exec = "/%s" % (dest_exec,)
 
-        rc = 0
         try:
-            rc = molecule.utils.exec_chroot_cmd([dest_exec] + exec_script[1:],
-                dest_chroot, pre_chroot = self.metadata.get('prechroot', []))
-        except:
+            rc = molecule.utils.exec_chroot_cmd(
+                [dest_exec] + exec_script[1:],
+                dest_chroot,
+                pre_chroot=self.metadata.get('prechroot', [])
+            )
+
+        except Exception:
             # kill all the pids inside chroot, no matter what just happened
-            molecule.utils.kill_chroot_pids(dest_chroot, sleep = True)
+            molecule.utils.kill_chroot_pids(dest_chroot, sleep=True)
             raise
         finally:
             os.remove(tmp_exec)
 
         if rc != 0:
-            molecule.utils.kill_chroot_pids(dest_chroot, sleep = True)
+            molecule.utils.kill_chroot_pids(dest_chroot, sleep=True)
             self._output.output("[%s|%s] %s: %s" % (
                     blue("BuiltinHandler"), darkred(self.spec_name),
                     _("inner chroot hook failed"), rc,
@@ -138,7 +139,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('inner_source_chroot_script')
         if exec_script:
             if os.path.isfile(exec_script[0]) and \
-                os.access(exec_script[0], os.R_OK):
+                    os.access(exec_script[0], os.R_OK):
                 rc = self._exec_inner_script(exec_script, self.source_dir)
                 if rc != 0:
                     self._output.output("[%s|%s] %s: %s" % (
@@ -147,7 +148,6 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
                         )
                     )
                     return rc
-
 
         self._output.output("[%s|%s] %s" % (
                 blue("MirrorHandler"), darkred(self.spec_name),
@@ -165,7 +165,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
             self._run_error_script(self.source_dir, self.dest_dir, None)
         self._output.output("[%s|%s] %s" % (
@@ -241,7 +241,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"), darkred(self.spec_name),
@@ -340,7 +340,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"), darkred(self.spec_name),
@@ -351,7 +351,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
             self._run_error_script(self.source_dir, self.dest_dir, None)
         self._output.output("[%s|%s] %s" % (
@@ -376,7 +376,6 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 rc = self._exec_inner_script(exec_script, self.dest_dir)
                 if rc != 0:
                     return rc
-
 
         self._output.output("[%s|%s] %s" % (
                 blue("ChrootHandler"), darkred(self.spec_name),
@@ -433,10 +432,10 @@ class CdrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
         )
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
             self._run_error_script(None, self.source_chroot,
-                self.dest_root)
+                                   self.dest_root)
         self._output.output("[%s|%s] %s" % (
                 blue("CdrootHandler"), darkred(self.spec_name),
                 _("executing kill"),
@@ -590,7 +589,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("IsoHandler"), darkred(self.spec_name),
@@ -619,7 +618,7 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("IsoHandler"), darkred(self.spec_name),
@@ -630,10 +629,10 @@ class IsoHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
             self._run_error_script(self.source_chroot, self.chroot_dir,
-                self.source_path)
+                                   self.source_path)
         self._output.output("[%s|%s] %s" % (
                 blue("IsoHandler"), darkred(self.spec_name),
                 _("executing kill"),
@@ -716,8 +715,8 @@ class LivecdSpec(GenericSpec):
                 'parser': self._command_splitter,
             },
             'release_string': {
-                'verifier': lambda x: len(x) != 0, # validation callback
-                'parser': lambda x: x.strip(), # value extractor
+                'verifier': lambda x: len(x) != 0,  # validation callback
+                'parser': lambda x: x.strip(),  # value extractor
             },
             'release_version': {
                 'verifier': lambda x: len(x) != 0,

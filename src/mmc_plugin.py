@@ -60,7 +60,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"), darkred(self.spec_name),
@@ -91,7 +91,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ChrootHandler"), darkred(self.spec_name),
@@ -102,7 +102,7 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         """ Nothing to do """
         return 0
 
@@ -123,8 +123,8 @@ class ChrootHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 if rc != 0:
                     return rc
 
-
-        self._output.output("[%s|%s] %s" % (
+        self._output.output(
+            "[%s|%s] %s" % (
                 blue("ChrootHandler"), darkred(self.spec_name),
                 _("hooks completed succesfully"),
             )
@@ -153,10 +153,10 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         try:
             self._tmp_image_file_fd, self._tmp_image_file = \
-                tempfile.mkstemp(prefix = "molecule",
-                                 dir = self._config['tmp_dir'],
+                tempfile.mkstemp(prefix="molecule",
+                                 dir=self._config['tmp_dir'],
                                  suffix=".mmc_img")
-        except (OSError, IOError,) as err:
+        except (OSError, IOError,):
             self._output.output("[%s|%s] %s: %s" % (
                     blue("ImageHandler"), darkred(self.spec_name),
                     _("setup hook failed"), _("cannot create temporary file"),
@@ -187,9 +187,10 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
-                self._output.output("[%s|%s] %s: %s" % (
+                self._output.output(
+                    "[%s|%s] %s: %s" % (
                         blue("ImageHandler"), darkred(self.spec_name),
                         _("pre image hook failed"), rc,
                     )
@@ -233,7 +234,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("ImageHandler"), darkred(self.spec_name),
@@ -248,7 +249,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         """ Nothing to run """
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
 
         # kill tmp files
         if self._tmp_image_file_fd is not None:
@@ -264,7 +265,7 @@ class ImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         if not success:
             env = os.environ.copy()
-            self._run_error_script(None, None, None, env = env)
+            self._run_error_script(None, None, None, env=env)
             if self._tmp_image_file is not None:
                 os.remove(self._tmp_image_file)
                 self._tmp_image_file = None
@@ -295,7 +296,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
 
         dest_path_dir = os.path.dirname(self.dest_path)
         if (not os.path.lexists(dest_path_dir)) and \
-            (not os.path.isdir(dest_path_dir)):
+                (not os.path.isdir(dest_path_dir)):
             os.makedirs(dest_path_dir, 0o755)
 
         return 0
@@ -338,7 +339,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
             md5file = self.dest_path + FinalImageHandler.MD5_EXT
             with open(md5file, "w") as f:
                 f.write("%s  %s\n" % (digest,
-                    os.path.basename(self.dest_path),))
+                                      os.path.basename(self.dest_path),))
                 f.flush()
 
     def post_run(self):
@@ -346,7 +347,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
         exec_script = self.metadata.get('post_image_script')
         if exec_script:
             env = os.environ.copy()
-            env['IMAGE_NAME'] = self.image_name # self.metadata['image_name']
+            env['IMAGE_NAME'] = self.image_name  # self.metadata['image_name']
             env['DESTINATION_IMAGE_DIR'] = self.dest_path
             # self.metadata['destination_image_directory']
             env['CHROOT_DIR'] = self.source_dir
@@ -358,7 +359,7 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                     _("spawning"), " ".join(exec_script),
                 )
             )
-            rc = molecule.utils.exec_cmd(exec_script, env = env)
+            rc = molecule.utils.exec_cmd(exec_script, env=env)
             if rc != 0:
                 self._output.output("[%s|%s] %s: %s" % (
                         blue("FinalImageHandler"), darkred(self.spec_name),
@@ -368,12 +369,13 @@ class FinalImageHandler(GenericExecutionStep, BuiltinHandlerMixin):
                 return rc
         return 0
 
-    def kill(self, success = True):
+    def kill(self, success=True):
         if not success:
             if self._tmp_image_file is not None:
                 if os.path.isfile(self._tmp_image_file):
                     os.remove(self._tmp_image_file)
         return 0
+
 
 class ChrootToMmcImageSpec(GenericSpec):
 
@@ -420,8 +422,8 @@ class ChrootToMmcImageSpec(GenericSpec):
                 'parser': self._command_splitter,
             },
             'release_string': {
-                'verifier': lambda x: len(x) != 0, # validation callback
-                'parser': lambda x: x.strip(), # value extractor
+                'verifier': lambda x: len(x) != 0,  # validation callback
+                'parser': lambda x: x.strip(),  # value extractor
             },
             'release_version': {
                 'verifier': lambda x: len(x) != 0,
