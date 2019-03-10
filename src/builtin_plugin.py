@@ -112,7 +112,7 @@ class MirrorHandler(GenericExecutionStep, BuiltinHandlerMixin):
     _mirror_syncer_builtin_args = [
         "-a", "--delete", "--delete-excluded",
         "--delete-during", "--numeric-ids",
-        "--recursive", "-d", "-A", "-H"]
+        "--recursive", "-d", "-A", "-H", "--xattrs"]
 
     def __init__(self, *args, **kwargs):
         super(MirrorHandler, self).__init__(*args, **kwargs)
